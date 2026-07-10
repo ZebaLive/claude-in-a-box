@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.paulius.jina-ai</string>
+
+    <!-- Start the jina-ai colima profile at login. The reader container has
+         restart: unless-stopped, so it comes back once the VM is up. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>/opt/homebrew/bin/colima start --profile jina-ai &amp;&amp; /usr/local/bin/docker --context colima-jina-ai compose -f __HOME__/Development/jina-ai/docker-compose.yml up -d</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- PATH so colima can find its qemu/lima helpers -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/Development/jina-ai/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Development/jina-ai/launchd.err.log</string>
+</dict>
+</plist>

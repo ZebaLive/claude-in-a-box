@@ -1,0 +1,60 @@
+services:
+  minio:
+    image: minio/minio
+    container_name: jina-minio
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9000:9000"   # S3 API (screenshots served via presigned URLs)
+      - "127.0.0.1:9001:9001"   # web console
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio-data:/data/minio
+    command: server /data/minio --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      default:
+        # Presigned screenshotUrl is signed for THIS host. Same name must
+        # resolve inside the network (alias below) and on the macOS host
+        # (/etc/hosts -> 127.0.0.1), or the signature host won't match.
+        aliases:
+          - minio.dev.jina.ai
+
+  # One-shot: create the bucket the reader writes screenshots into.
+  createbucket:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minio minio123 &&
+      mc mb -p local/reader-cache &&
+      echo bucket-ready
+      "
+    restart: "no"
+
+  reader:
+    image: ghcr.io/jina-ai/reader:oss
+    container_name: jina-reader
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3333:8081"   # HTTP/1.1
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      # Presence of these switches reader from no-op storage to bucket storage.
+      GCP_STORAGE_ENDPOINT: http://minio.dev.jina.ai:9000
+      GCP_STORAGE_BUCKET: reader-cache
+      GCP_STORAGE_ACCESS_KEY: minio
+      GCP_STORAGE_SECRET_KEY: minio123
+      GCP_STORAGE_REGION: us-east-1
+
+volumes:
+  minio-data:
