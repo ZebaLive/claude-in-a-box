@@ -7,13 +7,34 @@ fresh machine.
 **Bar is set to [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode).**
 CLI + skills preferred over MCP; MCP is used only where there's no good CLI/skill path.
 
-## Quick start
+## Installation
+
+### For humans
+
+Paste this prompt to your LLM agent (Claude Code, etc.):
+
+```
+Set up this machine with my Claude Code stack by following the guide here:
+https://raw.githubusercontent.com/ZebaLive/my-claude-code-setup/master/INSTALL.md
+```
+
+Or run it yourself — but letting the agent do it means the interactive parts
+(API keys, verification) get handled:
 
 ```sh
-git clone <this-repo> ~/Development/claude-setups && cd ~/Development/claude-setups
+git clone https://github.com/ZebaLive/my-claude-code-setup.git ~/Development/claude-setups
+cd ~/Development/claude-setups
 cp .env.example .env && $EDITOR .env         # add your API keys
 set -a && . ./.env && set +a && ./install.sh
 # restart Claude Code
+```
+
+### For LLM agents
+
+Fetch the guide and follow it:
+
+```sh
+curl -s https://raw.githubusercontent.com/ZebaLive/my-claude-code-setup/master/INSTALL.md
 ```
 
 ## What it installs
