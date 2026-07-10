@@ -16,7 +16,7 @@ Paste this prompt to your LLM agent (Claude Code, etc.):
 
 ```
 Set up this machine with my Claude Code stack by following the guide here:
-https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/master/INSTALL.md
+https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL.md
 ```
 
 Or run it yourself — but letting the agent do it means the interactive parts
@@ -35,7 +35,7 @@ set -a && . ./.env && set +a && ./install.sh
 Fetch the guide and follow it:
 
 ```sh
-curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/master/INSTALL.md
+curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL.md
 ```
 
 ## What it installs

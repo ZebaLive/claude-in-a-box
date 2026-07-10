@@ -5,7 +5,7 @@ owner's preferred Claude Code stack. Follow these steps in order. Stop and ask
 the human only where told to. Be lazy: skip steps already satisfied.
 
 **Repo:** `ZebaLive/claude-in-a-box` (raw base:
-`https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/master/`)
+`https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/`)
 
 ## 0. Preconditions — check, don't assume
 
