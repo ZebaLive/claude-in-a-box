@@ -25,9 +25,9 @@ claude plugin marketplace add thedotmack/claude-mem          2>/dev/null || true
 # ── Plugins (bar is set to OMC) ──────────────────────────────────────────────
 log "Installing plugins"
 claude plugin install superpowers@superpowers-marketplace
-claude plugin install oh-my-claudecode@omc
-claude plugin install ponytail@ponytail          # defaults to level: full on each session
 claude plugin install claude-mem@thedotmack
+claude plugin install oh-my-claudecode@omc
+claude plugin install ponytail@ponytail 
 
 # ── MCP servers: only what has no good CLI/skill path ────────────────────────
 # Scope = user so they apply everywhere. `add` errors if the name exists; ignore.
@@ -40,6 +40,10 @@ claude mcp add -s user context7 -- \
   npx -y @upstash/context7-mcp --api-key "$CONTEXT7_API_KEY" 2>/dev/null || true
 claude mcp add -s user exa -e "EXA_API_KEY=$EXA_API_KEY" -- \
   npx -y exa-mcp-server 2>/dev/null || true
+
+# ── Shared config: CLAUDE.md + rules (symlinked, backs up existing) ──────────
+log "Linking shared Claude config"
+"$REPO/claude/link.sh"
 
 # ── Skills (jina-reader — local, private WebFetch replacement) ───────────────
 log "Installing jina-reader skill"

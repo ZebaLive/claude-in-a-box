@@ -47,16 +47,31 @@ that were ever pasted into a local `~/.claude.json` before publishing.
 ## Layout
 
 ```
-install.sh              # entrypoint — marketplaces, plugins, MCP, skill
+install.sh              # entrypoint — marketplaces, plugins, MCP, config, skill
 .env.example            # required API keys
+claude/                 # shared Claude config, symlinked into ~/.claude
+  CLAUDE.md             # global instructions (OMC orchestration, routing, git)
+  rules/context7.md     # Context7 docs-lookup rule
+  link.sh               # symlinks the above into ~/.claude (backs up existing)
 skills/jina-reader/     # the jina-reader skill (SKILL.md)
 jina-ai/                # local Reader stack (docker-compose + colima LaunchAgent)
   setup-jina.sh         # brings up the Reader, installs the LaunchAgent
 ```
 
+## Shared config vs. machine-local
+
+`claude/CLAUDE.md` and `claude/rules/` are **symlinked** into `~/.claude`, so
+edits in this repo take effect live and are versioned. `link.sh` backs up any
+existing real file to `.bak` before linking.
+
+Machine-specific instructions (telemetry endpoints, SSH hosts, cloud profiles)
+belong in `~/.claude/CLAUDE.local.md` — not managed here. `CLAUDE.md` has a
+commented `@CLAUDE.local.md` import; uncomment it to load them.
+
 ## Not included
 
-Machine-specific config kept out on purpose: AWS Bedrock env, the giant Bash
-permission allowlist, token-optimizer, ebury/antigravity plugins, datadog MCP.
-Those live in `~/.claude/settings.json` per-machine, not here. Add a
-`settings.snippet.json` later if you want to template the safe parts.
+Kept out on purpose (machine-specific, not part of this stack): AWS Bedrock env,
+the giant Bash permission allowlist, token-optimizer (a `~/.copilot` plugin),
+ebury/antigravity plugins, datadog MCP. Those live in per-machine
+`~/.claude/settings.json`. Plugin-owned hooks (ponytail, claude-mem, OMC HUD
+statusline) register themselves on install — nothing to port.
