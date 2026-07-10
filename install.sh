@@ -5,7 +5,7 @@
 #   cp .env.example .env && $EDITOR .env && set -a && . ./.env && set +a && ./install.sh
 #
 # ponytail:  CLI + skills over MCP; MCP only where there's no CLI equivalent
-#            (context7, exa, github). jina is a local skill, not an MCP.
+#            (exa). context7 = ctx7 CLI + rule; jina = local skill; github = gh CLI.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,13 +31,10 @@ claude plugin install ponytail@ponytail
 
 # ── MCP servers: only what has no good CLI/skill path ────────────────────────
 # Scope = user so they apply everywhere. `add` errors if the name exists; ignore.
-# GitHub is intentionally NOT here — the `gh` CLI covers it.
-log "Configuring MCP servers (context7, exa)"
-: "${CONTEXT7_API_KEY:?set CONTEXT7_API_KEY (see .env.example)}"
+# context7 is the ctx7 CLI (see rules/context7.md), github is the gh CLI — not here.
+log "Configuring MCP servers (exa)"
 : "${EXA_API_KEY:?set EXA_API_KEY}"
 
-claude mcp add -s user context7 -- \
-  npx -y @upstash/context7-mcp --api-key "$CONTEXT7_API_KEY" 2>/dev/null || true
 claude mcp add -s user exa -e "EXA_API_KEY=$EXA_API_KEY" -- \
   npx -y exa-mcp-server 2>/dev/null || true
 

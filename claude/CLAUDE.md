@@ -63,7 +63,7 @@ this block only orients, it does not restate them):
 - **superpowers** enforces skill discipline (invoke a skill before acting).
 - **claude-mem** provides persistent cross-session memory.
 - **jina-reader** skill = local, private web fetch/screenshot (`localhost:3333`).
-- **exa** MCP = web search. **context7** MCP = live library docs.
+- **exa** MCP = web search. **context7** = `ctx7` CLI for live library docs.
 </stack>
 
 ## Setup
@@ -79,7 +79,7 @@ Default subagents to `haiku`. Upgrade only when the task requires judgment:
 ## Web Fetch & Search Routing
 - **Fetch or screenshot a URL** → use the `jina-reader` skill (local Reader on `localhost:3333`, plain `curl`, private + free). Never `WebFetch` or `mcp__exa__web_fetch_exa` — both are denied.
 - **Search the web** → use `mcp__exa__web_search_exa`. (Search needs a cloud index; fetch does not — keep fetch local.)
-- **Library/framework/API docs** → use Context7 MCP first (see `rules/context7.md`), before web search.
+- **Library/framework/API docs** → use the Context7 CLI first (`npx ctx7 library` / `ctx7 docs`; see `rules/context7.md`), before web search.
 - Rationale: page content and screenshots stay on-machine; only search and the target site itself touch the network.
 
 ## Waiting for Async Work — Poll, Don't Sleep
