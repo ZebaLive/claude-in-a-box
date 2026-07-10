@@ -4,8 +4,8 @@ You are an AI coding agent (Claude Code, etc.) setting up this machine with the
 owner's preferred Claude Code stack. Follow these steps in order. Stop and ask
 the human only where told to. Be lazy: skip steps already satisfied.
 
-**Repo:** `ZebaLive/my-claude-code-setup` (raw base:
-`https://raw.githubusercontent.com/ZebaLive/my-claude-code-setup/master/`)
+**Repo:** `ZebaLive/claude-in-a-box` (raw base:
+`https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/master/`)
 
 ## 0. Preconditions — check, don't assume
 
@@ -25,7 +25,7 @@ SKIP_OTEL=1` (the local docker stacks will be skipped).
 
 ```sh
 DIR="$HOME/Development/claude-setups"
-[ -d "$DIR/.git" ] || git clone https://github.com/ZebaLive/my-claude-code-setup.git "$DIR"
+[ -d "$DIR/.git" ] || git clone https://github.com/ZebaLive/claude-in-a-box.git "$DIR"
 cd "$DIR"
 ```
 
