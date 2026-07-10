@@ -94,5 +94,9 @@ ls -l ~/.claude/CLAUDE.md ~/.claude/skills/jina-reader  # CLAUDE.md is a symlink
 ```
 
 Report each check's result to the human. If a plugin is missing, re-run its
-`claude plugin install` line. Tell the human to **restart Claude Code** to load
-the plugins and the linked CLAUDE.md.
+`claude plugin install` line.
+
+## Two things to note
+
+1. **Restart Claude Code** to load the new plugins and the linked CLAUDE.md.
+2. **Run `omc install` to finalize** (or `/oh-my-claudecode:omc-setup`).
