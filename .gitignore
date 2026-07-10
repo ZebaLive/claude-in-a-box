@@ -1,3 +1,5 @@
 .env
 jina-ai/launchd.*.log
+monitoring/data/
+monitoring/launchd.*.log
 **/__pycache__/

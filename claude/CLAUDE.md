@@ -55,6 +55,17 @@ Kill switches: `DISABLE_OMC`, `OMC_SKIP_HOOKS` (comma-separated).
 State: `.omc/state/`, `.omc/state/sessions/{sessionId}/`, `.omc/notepad.md`, `.omc/project-memory.json`, `.omc/plans/`, `.omc/research/`, `.omc/logs/`
 </worktree_paths>
 
+<stack>
+Installed tooling and division of labor (rules self-inject via SessionStart hooks —
+this block only orients, it does not restate them):
+- **OMC** orchestrates: agents, skills, team pipeline.
+- **ponytail** governs how much to build (lazy-senior discipline; default level `full`).
+- **superpowers** enforces skill discipline (invoke a skill before acting).
+- **claude-mem** provides persistent cross-session memory.
+- **jina-reader** skill = local, private web fetch/screenshot (`localhost:3333`).
+- **exa** MCP = web search. **context7** MCP = live library docs.
+</stack>
+
 ## Setup
 
 Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
@@ -82,6 +93,7 @@ Never `sleep N` to wait for something to become ready — a blind sleep is eithe
 - **Log line**: `timeout 60 tail -f file | grep -m1 'ready pattern'`.
 - **File appears**: `until [ -f path ]; do sleep 1; done` inside `timeout`.
 - **Background task exit**: keep the id from an async `run_in_terminal` and call `get_terminal_output` when notified — do not spin on `sleep`.
+- **Claude Code's own telemetry**: OTel collector runs in the shared `jina-ai` colima profile (host: `docker --context colima-jina-ai`). Host loopback endpoints: OTLP gRPC `127.0.0.1:4317`, OTLP HTTP `127.0.0.1:4318`, Prometheus `http://127.0.0.1:8889/metrics`, health `http://127.0.0.1:13133`. Tail `<claude-setups>/monitoring/data/events.jsonl` for events. Setup: `monitoring/` in the claude-setups repo (auto-starts at login via LaunchAgent). Enable in Claude Code via the `CLAUDE_CODE_ENABLE_TELEMETRY`/`OTEL_*` env vars (machine-local `settings.json`).
 
 A one-second `sleep 1` inside a bounded `until … done` loop is fine; a bare `sleep 30 && next-command` is not.
 

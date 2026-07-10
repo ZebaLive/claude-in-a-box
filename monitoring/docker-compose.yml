@@ -1,0 +1,14 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    container_name: claude-code-otel
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - ./data:/data
+    ports:
+      - "127.0.0.1:4317:4317"    # OTLP gRPC (Claude Code exports here)
+      - "127.0.0.1:4318:4318"    # OTLP HTTP (unused by default, handy for curl tests)
+      - "127.0.0.1:8889:8889"    # Prometheus scrape endpoint (browse metrics)
+      - "127.0.0.1:13133:13133"  # health_check extension (curl this for status)

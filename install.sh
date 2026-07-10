@@ -58,4 +58,12 @@ if [ "${SKIP_JINA:-0}" != "1" ]; then
   "$REPO/jina-ai/setup-jina.sh"
 fi
 
+# ── OTel telemetry collector (optional) ──────────────────────────────────────
+# Reuses the jina-ai colima profile. Enable exporting via OTEL_* env in
+# ~/.claude/settings.json (machine-local). See monitoring/README.md.
+if [ "${SKIP_OTEL:-0}" != "1" ]; then
+  log "Setting up OTel collector"
+  "$REPO/monitoring/setup-otel.sh"
+fi
+
 log "Done. Restart Claude Code to load plugins. Verify: claude plugin list"

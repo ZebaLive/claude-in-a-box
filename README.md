@@ -56,7 +56,11 @@ claude/                 # shared Claude config, symlinked into ~/.claude
 skills/jina-reader/     # the jina-reader skill (SKILL.md)
 jina-ai/                # local Reader stack (docker-compose + colima LaunchAgent)
   setup-jina.sh         # brings up the Reader, installs the LaunchAgent
+monitoring/             # OTel telemetry collector for Claude Code (optional)
+  setup-otel.sh         # brings up the collector, installs the LaunchAgent
 ```
+
+`SKIP_JINA=1` / `SKIP_OTEL=1` skip the respective local stacks.
 
 ## Shared config vs. machine-local
 

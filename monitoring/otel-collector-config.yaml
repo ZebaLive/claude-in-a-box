@@ -1,0 +1,45 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+extensions:
+  # Exposes GET http://localhost:13133 (200 = pipelines running)
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+processors:
+  batch:
+    timeout: 5s
+
+exporters:
+  # Human-readable stdout (view with: docker logs -f claude-code-otel)
+  debug:
+    verbosity: normal
+
+  # JSONL files on disk (view with: tail -f ~/.claude/monitoring/data/events.jsonl)
+  file/metrics:
+    path: /data/metrics.jsonl
+  file/logs:
+    path: /data/events.jsonl
+
+  # Prometheus scrape endpoint on :8889/metrics
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, file/metrics, prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, file/logs]
