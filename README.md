@@ -23,8 +23,8 @@ Or run it yourself — but letting the agent do it means the interactive parts
 (API keys, verification) get handled:
 
 ```sh
-git clone https://github.com/ZebaLive/claude-in-a-box.git ~/Development/claude-setups
-cd ~/Development/claude-setups
+git clone https://github.com/ZebaLive/claude-in-a-box.git ~/.claude-in-a-box
+cd ~/.claude-in-a-box
 cp .env.example .env && $EDITOR .env         # add your API keys
 set -a && . ./.env && set +a && ./install.sh
 # restart Claude Code

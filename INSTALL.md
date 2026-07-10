@@ -24,7 +24,7 @@ SKIP_OTEL=1` (the local docker stacks will be skipped).
 ## 1. Clone the repo
 
 ```sh
-DIR="$HOME/Development/claude-setups"
+DIR="$HOME/.claude-in-a-box"
 [ -d "$DIR/.git" ] || git clone https://github.com/ZebaLive/claude-in-a-box.git "$DIR"
 cd "$DIR"
 ```
