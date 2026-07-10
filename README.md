@@ -46,7 +46,7 @@ curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL.
 | oh-my-claudecode | `Yeachan-Heo/oh-my-claudecode` (`@omc`) | plugin |
 | ponytail | `DietrichGebert/ponytail` | plugin — defaults to level `full` each session |
 | claude-mem | `thedotmack/claude-mem` | plugin |
-| context7 | `@upstash/context7-mcp` | MCP (stdio, no CLI) |
+| context7 | `ctx7` (`npx ctx7`) | **CLI** + docs-lookup rule |
 | exa search | `exa-mcp-server` | MCP (stdio, cloud index) |
 | jina-reader | this repo | **skill** + local Reader on `localhost:3333` |
 
@@ -57,7 +57,8 @@ GitHub is handled by the `gh` CLI (no MCP server).
 - **jina = skill, not MCP.** Web fetch/screenshots stay on-machine via a self-hosted
   Reader. The skill is plain `curl` to `localhost:3333`. See `jina-ai/README.md`.
 - **exa = MCP.** Web *search* needs a cloud index; no local equivalent.
-- **context7 = MCP.** Live library docs; stdio `npx`, no CLI.
+- **context7 = CLI.** Live library docs via `npx ctx7 library` / `ctx7 docs`, driven by
+  `rules/context7.md`. No MCP server, no token overhead when unused. `CONTEXT7_API_KEY` optional (rate limits only).
 - **github = `gh` CLI.** No MCP server — `gh` covers PRs, issues, releases, and `gh api`.
 
 ## Secrets
@@ -93,11 +94,3 @@ existing real file to `.bak` before linking.
 Machine-specific instructions (telemetry endpoints, SSH hosts, cloud profiles)
 belong in `~/.claude/CLAUDE.local.md` — not managed here. `CLAUDE.md` has a
 commented `@CLAUDE.local.md` import; uncomment it to load them.
-
-## Not included
-
-Kept out on purpose (machine-specific, not part of this stack): AWS Bedrock env,
-the giant Bash permission allowlist, token-optimizer (a `~/.copilot` plugin),
-ebury/antigravity plugins, datadog MCP. Those live in per-machine
-`~/.claude/settings.json`. Plugin-owned hooks (ponytail, claude-mem, OMC HUD
-statusline) register themselves on install — nothing to port.

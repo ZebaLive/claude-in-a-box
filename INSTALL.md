@@ -39,12 +39,12 @@ cp -n .env.example .env
 ```
 
 Ask the human for:
-- `CONTEXT7_API_KEY` — from https://context7.com
 - `EXA_API_KEY` — from https://exa.ai
+- `CONTEXT7_API_KEY` — from https://context7.com — **optional**, only raises `ctx7` CLI rate limits. Leave blank if they don't have one.
 
-Write their answers into `.env`. If the human doesn't have a key, leave it blank
-and warn that the matching MCP server will fail to configure (the rest still
-installs).
+Write their answers into `.env`. A blank `EXA_API_KEY` means the exa MCP server
+won't configure; a blank `CONTEXT7_API_KEY` is fine (the `ctx7` CLI just runs at
+default rate limits). The rest still installs.
 
 ## 3. Run the installer
 
@@ -59,7 +59,7 @@ Optional env flags (set before running if the situation calls for it):
 
 What `install.sh` does (for your awareness — don't re-do it by hand):
 - Adds marketplaces + installs plugins: superpowers, oh-my-claudecode, ponytail, claude-mem
-- Configures MCP servers: context7, exa (github is intentionally the `gh` CLI, not MCP)
+- Configures the exa MCP server (context7 = `ctx7` CLI + rule, github = `gh` CLI — neither is an MCP)
 - Symlinks `claude/CLAUDE.md` and `claude/rules/` into `~/.claude` (backs up existing to `.bak`)
 - Installs the `jina-reader` skill
 - Brings up local docker stacks: jina Reader (`localhost:3333`), OTel collector
@@ -86,7 +86,8 @@ Machine-specific CLAUDE.md instructions (SSH hosts, cloud profiles) go in
 
 ```sh
 claude plugin list                                   # expect superpowers, oh-my-claudecode, ponytail, claude-mem
-claude mcp list                                       # expect context7, exa
+claude mcp list                                       # expect exa (context7 is the ctx7 CLI, not MCP)
+npx -y ctx7 --version                                 # context7 CLI reachable
 ls -l ~/.claude/CLAUDE.md ~/.claude/skills/jina-reader  # CLAUDE.md is a symlink into the repo
 [ "${SKIP_JINA:-0}" = 1 ] || curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
 [ "${SKIP_OTEL:-0}" = 1 ] || curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"

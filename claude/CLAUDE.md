@@ -63,26 +63,28 @@ this block only orients, it does not restate them):
 - **superpowers** enforces skill discipline (invoke a skill before acting).
 - **claude-mem** provides persistent cross-session memory.
 - **jina-reader** skill = local, private web fetch/screenshot (`localhost:3333`).
-- **exa** MCP = web search. **context7** MCP = live library docs.
+- **exa** MCP = web search. **context7** = `ctx7` CLI for live library docs.
 </stack>
 
-## Setup
-
+<setup>
 Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
+</setup>
 
-## Agent Model Selection
+<agent_model_selection>
 Default subagents to `haiku`. Upgrade only when the task requires judgment:
 - `haiku`: file reading, data gathering, counting, scanning, grep/search, formatting
 - `sonnet`: analysis, code review, writing, cross-file reasoning, moderate synthesis
 - `opus`: architecture decisions, novel debugging, ralplan, high-risk security review
+</agent_model_selection>
 
-## Web Fetch & Search Routing
+<web_fetch_and_search_routing>
 - **Fetch or screenshot a URL** → use the `jina-reader` skill (local Reader on `localhost:3333`, plain `curl`, private + free). Never `WebFetch` or `mcp__exa__web_fetch_exa` — both are denied.
 - **Search the web** → use `mcp__exa__web_search_exa`. (Search needs a cloud index; fetch does not — keep fetch local.)
-- **Library/framework/API docs** → use Context7 MCP first (see `rules/context7.md`), before web search.
+- **Library/framework/API docs** → use the Context7 CLI first (`npx ctx7 library` / `ctx7 docs`; see `rules/context7.md`), before web search.
 - Rationale: page content and screenshots stay on-machine; only search and the target site itself touch the network.
+</web_fetch_and_search_routing>
 
-## Waiting for Async Work — Poll, Don't Sleep
+<waiting_for_async_work>
 Never `sleep N` to wait for something to become ready — a blind sleep is either wasted time or a race. Poll a readiness signal with a bounded timeout.
 
 - **HTTP service**: `curl --retry 30 --retry-delay 1 --retry-connrefused -fsS http://host/health` (or `wget --retry-connrefused --waitretry=1 --tries=30`).
@@ -96,13 +98,15 @@ Never `sleep N` to wait for something to become ready — a blind sleep is eithe
 - **Claude Code's own telemetry**: OTel collector runs in the shared `jina-ai` colima profile (host: `docker --context colima-jina-ai`). Host loopback endpoints: OTLP gRPC `127.0.0.1:4317`, OTLP HTTP `127.0.0.1:4318`, Prometheus `http://127.0.0.1:8889/metrics`, health `http://127.0.0.1:13133`. Tail `<claude-setups>/monitoring/data/events.jsonl` for events. Setup: `monitoring/` in the claude-setups repo (auto-starts at login via LaunchAgent). Enable in Claude Code via the `CLAUDE_CODE_ENABLE_TELEMETRY`/`OTEL_*` env vars (machine-local `settings.json`).
 
 A one-second `sleep 1` inside a bounded `until … done` loop is fine; a bare `sleep 30 && next-command` is not.
+</waiting_for_async_work>
 
-## Git Workflow
+<git_workflow>
 - NEVER commit directly to master/main. Always create a feature branch first.
 - Verify current branch with `git branch --show-current` before any commit.
 - Use PR workflow: branch → commit → push → open PR.
 - NEVER add `Co-Authored-By` or any Claude/AI attribution to commit messages.
 - **Branch names**: follow the convention specified in the project's `CLAUDE.md`/`AGENTS.md` (e.g. ticket prefix, separator). Check it before creating a branch — don't invent a format. When the convention says `<TICKET>-<slug>` (dash-separated, single segment), do NOT use `<TICKET>/<slug>` (slash-separated, two segments) or vice-versa. If the project doesn't specify, ask or mirror the most recent merged branch from `git log --oneline --all | head -20`.
+</git_workflow>
 
 <!-- Machine-specific instructions (telemetry endpoints, hosts, SSH targets, cloud
      profiles) live in ~/.claude/CLAUDE.local.md — kept out of this shared file.
