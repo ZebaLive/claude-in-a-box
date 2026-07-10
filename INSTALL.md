@@ -99,4 +99,4 @@ Report each check's result to the human. If a plugin is missing, re-run its
 ## Two things to note
 
 1. **Restart Claude Code** to load the new plugins and the linked CLAUDE.md.
-2. **Run `omc install` to finalize** (or `/oh-my-claudecode:omc-setup`).
+2. **Run `omc setup` to finalize** (or `/oh-my-claudecode:omc-setup`).
