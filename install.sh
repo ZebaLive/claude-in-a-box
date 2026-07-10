@@ -42,6 +42,10 @@ claude mcp add -s user exa -e "EXA_API_KEY=$EXA_API_KEY" -- \
 log "Linking shared Claude config"
 "$REPO/claude/link.sh"
 
+# ── Shared settings: env + permissions (merged, idempotent; machine values win)
+log "Merging shared Claude settings"
+"$REPO/claude/merge-settings.sh"
+
 # ── Skills (jina-reader — local, private WebFetch replacement) ───────────────
 log "Installing jina-reader skill"
 mkdir -p "$CLAUDE_DIR/skills"
