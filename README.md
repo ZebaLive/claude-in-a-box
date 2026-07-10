@@ -26,8 +26,9 @@ set -a && . ./.env && set +a && ./install.sh
 | claude-mem | `thedotmack/claude-mem` | plugin |
 | context7 | `@upstash/context7-mcp` | MCP (stdio, no CLI) |
 | exa search | `exa-mcp-server` | MCP (stdio, cloud index) |
-| github | `api.githubcopilot.com/mcp` | MCP (http) |
 | jina-reader | this repo | **skill** + local Reader on `localhost:3333` |
+
+GitHub is handled by the `gh` CLI (no MCP server).
 
 ### Why these transports
 - **Skills/CLI first** (ponytail principle): fewer moving parts, less token overhead than MCP.
@@ -35,7 +36,7 @@ set -a && . ./.env && set +a && ./install.sh
   Reader. The skill is plain `curl` to `localhost:3333`. See `jina-ai/README.md`.
 - **exa = MCP.** Web *search* needs a cloud index; no local equivalent.
 - **context7 = MCP.** Live library docs; stdio `npx`, no CLI.
-- **github = MCP (http).** Copilot MCP endpoint.
+- **github = `gh` CLI.** No MCP server — `gh` covers PRs, issues, releases, and `gh api`.
 
 ## Secrets
 

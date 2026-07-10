@@ -31,17 +31,15 @@ claude plugin install claude-mem@thedotmack
 
 # ── MCP servers: only what has no good CLI/skill path ────────────────────────
 # Scope = user so they apply everywhere. `add` errors if the name exists; ignore.
-log "Configuring MCP servers (context7, exa, github)"
+# GitHub is intentionally NOT here — the `gh` CLI covers it.
+log "Configuring MCP servers (context7, exa)"
 : "${CONTEXT7_API_KEY:?set CONTEXT7_API_KEY (see .env.example)}"
 : "${EXA_API_KEY:?set EXA_API_KEY}"
-: "${GITHUB_MCP_TOKEN:?set GITHUB_MCP_TOKEN (a GitHub token/PAT)}"
 
 claude mcp add -s user context7 -- \
   npx -y @upstash/context7-mcp --api-key "$CONTEXT7_API_KEY" 2>/dev/null || true
 claude mcp add -s user exa -e "EXA_API_KEY=$EXA_API_KEY" -- \
   npx -y exa-mcp-server 2>/dev/null || true
-claude mcp add -s user --transport http github https://api.githubcopilot.com/mcp/ \
-  --header "Authorization: Bearer $GITHUB_MCP_TOKEN" 2>/dev/null || true
 
 # ── Skills (jina-reader — local, private WebFetch replacement) ───────────────
 log "Installing jina-reader skill"
