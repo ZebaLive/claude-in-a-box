@@ -16,8 +16,7 @@
     "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317",
     "OTEL_METRIC_EXPORT_INTERVAL": "10000",
-    "OTEL_LOGS_EXPORT_INTERVAL": "5000",
-    "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"
+    "OTEL_LOGS_EXPORT_INTERVAL": "5000"
   },
   "permissions": {
     "deny": [
