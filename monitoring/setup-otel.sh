@@ -13,6 +13,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 have() { command -v "$1" >/dev/null 2>&1; }
 OS="$(uname -s)"
 mkdir -p "$HERE/data"
+chmod 777 "$HERE/data"   # otel-collector-contrib image runs as non-root UID 10001
 
 case "$OS" in
 Darwin)

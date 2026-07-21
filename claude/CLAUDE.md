@@ -1,59 +1,5 @@
-# oh-my-claudecode - Intelligent Multi-Agent Orchestration
-
-You are running with oh-my-claudecode (OMC), a multi-agent orchestration layer for Claude Code.
-Coordinate specialized agents, tools, and skills so work is completed accurately and efficiently.
-
-<operating_principles>
-- Delegate specialized work to the most appropriate agent.
-- Prefer evidence over assumptions: verify outcomes before final claims.
-- Choose the lightest-weight path that preserves quality.
-- Consult official docs before implementing with SDKs/frameworks/APIs.
-</operating_principles>
-
-<delegation_rules>
-Delegate for: multi-file changes, refactors, debugging, reviews, planning, research, verification.
-Work directly for: trivial ops, small clarifications, single commands.
-Route code to `executor` (use `model=opus` for complex work). Uncertain SDK usage → `document-specialist` (repo docs first; Context Hub / `chub` when available, graceful web fallback otherwise).
-</delegation_rules>
-
-<model_routing>
-`haiku` (quick lookups), `sonnet` (standard), `opus` (architecture, deep analysis).
-Direct writes OK for: `~/.claude/**`, `.omc/**`, `.claude/**`, `CLAUDE.md`, `AGENTS.md`.
-</model_routing>
-
-<skills>
-Invoke via `/oh-my-claudecode:<name>`. Trigger patterns auto-detect keywords.
-Tier-0 workflows include `autopilot`, `ultrawork`, `ralph`, `team`, and `ralplan`.
-Keyword triggers: `"autopilot"→autopilot`, `"ralph"→ralph`, `"ulw"→ultrawork`, `"ccg"→ccg`, `"ralplan"→ralplan`, `"deep interview"→deep-interview`, `"deslop"`/`"anti-slop"`→ai-slop-cleaner, `"deep-analyze"`→analysis mode, `"tdd"`→TDD mode, `"deepsearch"`→codebase search, `"ultrathink"`→deep reasoning, `"cancelomc"`→cancel.
-Team orchestration is explicit via `/team`.
-Detailed agent catalog, tools, team pipeline, commit protocol, and full skills registry live in the native `omc-reference` skill when skills are available, including reference for `explore`, `planner`, `architect`, `executor`, `designer`, and `writer`; this file remains sufficient without skill support.
-</skills>
-
-<verification>
-Verify before claiming completion. Size appropriately: small→haiku, standard→sonnet, large/security→opus.
-If verification fails, keep iterating.
-</verification>
-
-<execution_protocols>
-Broad requests: explore first, then plan. 2+ independent tasks in parallel. `run_in_background` for builds/tests.
-Keep authoring and review as separate passes: writer pass creates or revises content, reviewer/verifier pass evaluates it later in a separate lane.
-Never self-approve in the same active context; use `code-reviewer` or `verifier` for the approval pass.
-Before concluding: zero pending tasks, tests passing, verifier evidence collected.
-</execution_protocols>
-
-<hooks_and_context>
-Hooks inject `<system-reminder>` tags. Key patterns: `hook success: Success` (proceed), `[MAGIC KEYWORD: ...]` (invoke skill), `The boulder never stops` (ralph/ultrawork active).
-Persistence: `<remember>` (7 days), `<remember priority>` (permanent).
-Kill switches: `DISABLE_OMC`, `OMC_SKIP_HOOKS` (comma-separated).
-</hooks_and_context>
-
-<cancellation>
-`/oh-my-claudecode:cancel` ends execution modes. Cancel when done+verified or blocked. Don't cancel if work incomplete.
-</cancellation>
-
-<worktree_paths>
-State: `.omc/state/`, `.omc/state/sessions/{sessionId}/`, `.omc/notepad.md`, `.omc/project-memory.json`, `.omc/plans/`, `.omc/research/`, `.omc/logs/`
-</worktree_paths>
+<!-- CLAUDE-IN-A-BOX:START -->
+<!-- Managed by claude/link.sh; coexists with OMC's and rtk's own blocks below. -->
 
 <stack>
 Installed tooling and division of labor (rules self-inject via SessionStart hooks —
@@ -66,10 +12,6 @@ this block only orients, it does not restate them):
 - **exa** MCP = web search. **context7** = `ctx7` CLI for live library docs.
 - **rtk** rewrites Bash commands to compact equivalents via a PreToolUse hook (60-90% less token usage); see `@RTK.md` for its meta-commands (`rtk gain`, `rtk discover`, ...).
 </stack>
-
-<setup>
-Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
-</setup>
 
 <agent_model_selection>
 Default subagents to `haiku`. Upgrade only when the task requires judgment:
@@ -101,17 +43,6 @@ Never `sleep N` to wait for something to become ready — a blind sleep is eithe
 A one-second `sleep 1` inside a bounded `until … done` loop is fine; a bare `sleep 30 && next-command` is not.
 </waiting_for_async_work>
 
-<git_workflow>
-- NEVER commit directly to master/main. Always create a feature branch first.
-- Verify current branch with `git branch --show-current` before any commit.
-- Use PR workflow: branch → commit → push → open PR.
-- NEVER add `Co-Authored-By` or any Claude/AI attribution to commit messages.
-- **Branch names**: follow the convention specified in the project's `CLAUDE.md`/`AGENTS.md` (e.g. ticket prefix, separator). Check it before creating a branch — don't invent a format. When the convention says `<TICKET>-<slug>` (dash-separated, single segment), do NOT use `<TICKET>/<slug>` (slash-separated, two segments) or vice-versa. If the project doesn't specify, ask or mirror the most recent merged branch from `git log --oneline --all | head -20`.
-</git_workflow>
-
-@RTK.md
-
-<!-- Machine-specific instructions (telemetry endpoints, hosts, SSH targets, cloud
-     profiles) live in ~/.claude/CLAUDE.local.md — kept out of this shared file.
-     Uncomment to load it if present: -->
+<!-- Machine-specific bits go in ~/.claude/CLAUDE.local.md; uncomment to load: -->
 <!-- @CLAUDE.local.md -->
+<!-- CLAUDE-IN-A-BOX:END -->

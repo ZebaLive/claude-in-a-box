@@ -96,10 +96,26 @@ claude plugin install oh-my-claudecode@omc
 claude plugin install ponytail@ponytail
 ```
 
+If you're running this guide as an agent *inside* an active Claude Code
+session (rather than a human pasting these into a plain shell), the `claude`
+CLI calls above write to disk but don't affect your own already-running
+session. Refresh it in-session rather than restarting the whole process:
+
+```text
+/reload-plugins
+```
+
+This loads the newly-installed plugins' agents/skills/hooks into your current
+session immediately. Keep going through the rest of this guide in the same
+session — re-run `/reload-plugins` again after step 8 below, since steps 7
+and 8 also add hooks/settings that your current session won't see until
+refreshed. A full Claude Code restart is no longer required to pick these up;
+it's only a fallback if something still looks stale by the end.
+
 ## 4. MCP servers — only what has no good CLI/skill path
 
 Scope = user so it applies everywhere. context7 is the `ctx7` CLI (see
-`claude/rules/context7.md`, linked in step 7); github is the `gh` CLI. Neither
+`claude/rules/context7.md`, linked in step 9); github is the `gh` CLI. Neither
 needs an MCP server — only exa (web search) does, since there's no local
 equivalent:
 
@@ -110,29 +126,48 @@ equivalent:
 If `claude mcp add` errors because `exa` already exists, that's fine — it's
 already configured.
 
-## 5. oh-my-claudecode — sync via its own terminal CLI
+## 5. jina-reader skill + local Reader stack
+
+```sh
+mkdir -p ~/.claude/skills
+cp -R skills/jina-reader ~/.claude/skills/jina-reader
+
+./jina-ai/setup-jina.sh   # OS-aware: colima+LaunchAgent (macOS) or native Docker+systemd --user (Linux)
+```
+
+See `jina-ai/README.md` for what the script does and why (`/etc/hosts` entry
+for the presigned-URL host, the colima profile, the login service).
+
+## 6. OTel collector for Claude Code's own telemetry
+
+```sh
+./monitoring/setup-otel.sh   # same OS-aware pattern as step 5
+```
+
+See `monitoring/README.md` for endpoints and where the data lands.
+
+## 7. oh-my-claudecode — sync via its own `/setup` skill
 
 The plugin from step 3 gives you the in-session `/autopilot`, `/team`, etc.
 skills, but it does **not** install OMC's hooks/agents/skills/HUD/CLAUDE.md —
-that only happens via OMC's own `omc setup`. Install the separate terminal
-CLI (npm package, distinct from the plugin) and run its non-interactive sync:
+that only happens via OMC's own setup flow. If you're running this guide as
+an agent inside an active Claude Code session, invoke the in-session skill
+rather than driving the separate terminal CLI by hand — it routes to the
+canonical setup flow (installing the npm CLI if missing) non-interactively:
 
-```sh
-command -v omc >/dev/null || npm i -g oh-my-claude-sisyphus@latest
-omc setup --quiet   # non-interactive; syncs hooks, agents, skills, HUD, settings.json entries, CLAUDE.md
+```text
+/oh-my-claudecode:setup
 ```
 
-`omc setup` **refuses to run if `~/.claude/CLAUDE.md` is already a symlink**
-(it writes a real file with its own `<!-- OMC:START -->` managed block). On a
-fresh machine there's nothing to clear; on a re-run of this guide where step 7
-already symlinked our curated CLAUDE.md in, clear that symlink first so OMC
-can write through it again — step 7 puts our version back afterward regardless:
+(A human running this guide from a plain shell instead should fall back to
+`command -v omc >/dev/null || npm i -g oh-my-claude-sisyphus@latest` followed
+by `omc setup --quiet`.)
 
-```sh
-[ -L ~/.claude/CLAUDE.md ] && rm ~/.claude/CLAUDE.md
-```
+`omc setup` writes a real `~/.claude/CLAUDE.md` with its own managed
+`<!-- OMC:START -->` block. That's fine to run in any order relative to steps
+8 and 9 below — see step 9 for why nothing here fights over the file.
 
-## 6. rtk — install it the way its own docs say to, then let it configure itself
+## 8. rtk — install it the way its own docs say to, then let it configure itself
 
 [rtk-ai/rtk](https://github.com/rtk-ai/rtk) is a CLI proxy that rewrites Bash
 commands (`git status`, `cargo test`, ...) to compact equivalents via a
@@ -155,54 +190,36 @@ If a newer rtk version changes what `init` sets up, that's expected — you're
 always getting the current version's own idea of correct configuration
 rather than a copy we'd have to keep in sync by hand.
 
-**Must run after step 5, not before**: `rtk init` writes straight through a
-symlinked `CLAUDE.md` instead of refusing like OMC does — if step 7's symlink
-were already in place, this would silently append into the *repo's tracked
-file* through the link. Since step 5 already cleared any pre-existing symlink,
-`rtk init` here always lands on a real file.
+`rtk init` appends a real `@RTK.md` import line to `~/.claude/CLAUDE.md`. Fine
+to run in any order relative to steps 7 and 9 — see step 9.
 
-## 7. Shared config + settings (helper scripts — run these, don't hand-roll them; run LAST of the three)
+If running as an agent inside an active session, `/reload-plugins` now so
+this session picks up the changes from steps 7 and 8 (CLAUDE.md, HUD,
+settings.json, the rtk PreToolUse hook) — otherwise the rest of this guide's
+own Bash calls won't benefit from either until a future session.
+
+## 9. Shared config + settings (helper scripts — run these, don't hand-roll them)
 
 ```sh
-./claude/link.sh            # symlinks CLAUDE.md + rules/ into ~/.claude, backs up any existing real file to .bak
+./claude/link.sh            # merges our CLAUDE-IN-A-BOX block into ~/.claude/CLAUDE.md, symlinks rules/
 ./claude/merge-settings.sh  # merges claude/shared-settings.json into ~/.claude/settings.json (idempotent, machine values win)
 ```
 
-Order matters: steps 5 and 6 above write a real, generated `~/.claude/CLAUDE.md`
-(OMC's managed block, then rtk's `@RTK.md` line) and add their own entries
-under `settings.json`'s `hooks` key. Run `link.sh` only now, once they're
-done — it detects that generated file is a real (non-symlink) file and backs
-it up to `.bak` before symlinking our curated `claude/CLAUDE.md` over it. That
-curated file already covers OMC/rtk/ponytail/etc. by hand (see its `<stack>`
-section and `@RTK.md` import), so nothing generated is lost by overwriting it
-— the backup is disposable. `merge-settings.sh` then only fills in missing
-`env`/`permissions` keys (`setdefault`-style), so it never touches the `hooks`
-entries OMC and rtk already added.
+`link.sh` does **not** symlink `CLAUDE.md` itself. OMC (step 7) and rtk
+(step 8) both write into the same real `~/.claude/CLAUDE.md` — OMC's own
+`<!-- OMC:START -->` block, rtk's `@RTK.md` line. Wholesale-symlinking the
+file would make all three fight over ownership and force a strict run order.
+Instead `link.sh` upserts only the content between its own
+`<!-- CLAUDE-IN-A-BOX:START/END -->` markers, leaving OMC's and rtk's pieces
+untouched — so steps 7, 8, and 9 can run in **any order**, including re-runs.
+`merge-settings.sh` only fills in missing `env`/`permissions` keys
+(`setdefault`-style), so it never touches the `hooks` entries OMC and rtk
+already added.
 
 `merge-settings.sh` is what turns on telemetry exporting by default
 (`CLAUDE_CODE_ENABLE_TELEMETRY`, `OTEL_*` — see `monitoring/README.md`); there's
 nothing further to configure for that unless the human wants to override a
 value (a machine-local `settings.json` entry always wins over the merge).
-
-## 8. jina-reader skill + local Reader stack
-
-```sh
-mkdir -p ~/.claude/skills
-cp -R skills/jina-reader ~/.claude/skills/jina-reader
-
-./jina-ai/setup-jina.sh   # OS-aware: colima+LaunchAgent (macOS) or native Docker+systemd --user (Linux)
-```
-
-See `jina-ai/README.md` for what the script does and why (`/etc/hosts` entry
-for the presigned-URL host, the colima profile, the login service).
-
-## 9. OTel collector for Claude Code's own telemetry
-
-```sh
-./monitoring/setup-otel.sh   # same OS-aware pattern as step 8
-```
-
-See `monitoring/README.md` for endpoints and where the data lands.
 
 ## 10. Verify — report results, don't just claim success
 
@@ -212,7 +229,8 @@ claude mcp list                                         # expect exa (context7 i
 npx -y ctx7 --version                                    # context7 CLI reachable
 omc --version && ls ~/.claude/agents ~/.claude/hud       # omc CLI installed + setup synced agents/HUD
 rtk --version && rtk init --show                         # rtk installed + hook registered in settings.json
-ls -l ~/.claude/CLAUDE.md ~/.claude/skills/jina-reader   # CLAUDE.md is a symlink into the repo (not OMC's/rtk's generated file)
+grep -c "CLAUDE-IN-A-BOX:START\|OMC:START" ~/.claude/CLAUDE.md   # expect 2: our block + OMC's block coexist
+ls -l ~/.claude/skills/jina-reader
 curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 
@@ -229,6 +247,10 @@ missing, re-run its command from step 3/4 rather than debugging blindly.
 
 ## One thing to note
 
-**Restart Claude Code** to load the new plugins, the OMC hooks/agents/HUD, the
-rtk hook, and the linked CLAUDE.md. (`omc setup` and `rtk init` already ran as
-part of steps 5-6 above — there's no separate finalize step left to do by hand.)
+If you followed the `/reload-plugins` calls in steps 3 and 8, your current
+session already has the new plugins, OMC hooks/agents/HUD, the rtk hook, and
+the merged CLAUDE.md loaded — no restart needed. If you skipped those (e.g. a
+human ran this guide from a plain shell rather than an agent inside Claude
+Code), **restart Claude Code** once at the end instead to pick up the same
+changes. (`omc setup` and `rtk init` already ran as part of steps 7-8 above —
+there's no separate finalize step left to do by hand either way.)
