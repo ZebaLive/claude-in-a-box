@@ -29,8 +29,8 @@ MinIO console: http://localhost:9001 (minio / minio123).
 
 ## Runtime
 
-Run `./setup-jina.sh` (also called by the top-level `install.sh` unless
-`SKIP_JINA=1`). It's OS-aware:
+Run `./setup-jina.sh` (also always run by `INSTALL.md` — this stack is not
+optional). It's OS-aware:
 
 - **macOS**: runs in a dedicated **colima profile** `jina-ai` (isolated from
   your other profiles), reached via docker context `colima-jina-ai`.

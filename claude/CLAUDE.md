@@ -64,6 +64,7 @@ this block only orients, it does not restate them):
 - **claude-mem** provides persistent cross-session memory.
 - **jina-reader** skill = local, private web fetch/screenshot (`localhost:3333`).
 - **exa** MCP = web search. **context7** = `ctx7` CLI for live library docs.
+- **rtk** rewrites Bash commands to compact equivalents via a PreToolUse hook (60-90% less token usage); see `@RTK.md` for its meta-commands (`rtk gain`, `rtk discover`, ...).
 </stack>
 
 <setup>
@@ -107,6 +108,8 @@ A one-second `sleep 1` inside a bounded `until … done` loop is fine; a bare `s
 - NEVER add `Co-Authored-By` or any Claude/AI attribution to commit messages.
 - **Branch names**: follow the convention specified in the project's `CLAUDE.md`/`AGENTS.md` (e.g. ticket prefix, separator). Check it before creating a branch — don't invent a format. When the convention says `<TICKET>-<slug>` (dash-separated, single segment), do NOT use `<TICKET>/<slug>` (slash-separated, two segments) or vice-versa. If the project doesn't specify, ask or mirror the most recent merged branch from `git log --oneline --all | head -20`.
 </git_workflow>
+
+@RTK.md
 
 <!-- Machine-specific instructions (telemetry endpoints, hosts, SSH targets, cloud
      profiles) live in ~/.claude/CLAUDE.local.md — kept out of this shared file.

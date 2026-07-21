@@ -12,7 +12,10 @@ a LaunchAgent; on Linux it uses the native Docker daemon and installs a
 systemd `--user` unit (`claude-code-otel.service`). See `jina-ai/README.md`
 for the equivalent detail on that stack.
 
-Then enable exporting in `~/.claude/settings.json` `env` (machine-local):
+Exporting is enabled by default — `claude/shared-settings.json` already sets
+these `env` vars, and `claude/merge-settings.sh` merges them into
+`~/.claude/settings.json` (a machine-local value always wins if you want to
+override one):
 
 ```json
 "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
@@ -36,4 +39,4 @@ Then enable exporting in `~/.claude/settings.json` `env` (machine-local):
 - `data/events.jsonl` — logs. `data/metrics.jsonl` — metrics. (both gitignored)
 - `docker logs -f claude-code-otel` — human-readable stdout.
 
-Skip during install with `SKIP_OTEL=1 ./install.sh`.
+This stack is not optional — `INSTALL.md` always has the agent run `setup-otel.sh`.
