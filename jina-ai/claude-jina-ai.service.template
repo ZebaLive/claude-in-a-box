@@ -1,0 +1,14 @@
+[Unit]
+Description=jina-ai local Reader (Docker Compose)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=__HERE__
+ExecStart=/usr/bin/docker compose -f __HERE__/docker-compose.yml up -d
+TimeoutStartSec=0
+
+[Install]
+WantedBy=default.target

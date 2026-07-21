@@ -77,10 +77,11 @@ claude/                 # shared Claude config, symlinked into ~/.claude
   rules/context7.md     # Context7 docs-lookup rule
   link.sh               # symlinks the above into ~/.claude (backs up existing)
 skills/jina-reader/     # the jina-reader skill (SKILL.md)
-jina-ai/                # local Reader stack (docker-compose + colima LaunchAgent)
-  setup-jina.sh         # brings up the Reader, installs the LaunchAgent
+jina-ai/                # local Reader stack (docker-compose; colima+LaunchAgent on
+                         #   macOS, native Docker+systemd --user on Linux)
+  setup-jina.sh         # brings up the Reader, installs the login service
 monitoring/             # OTel telemetry collector for Claude Code (optional)
-  setup-otel.sh         # brings up the collector, installs the LaunchAgent
+  setup-otel.sh         # brings up the collector, installs the login service
 ```
 
 `SKIP_JINA=1` / `SKIP_OTEL=1` skip the respective local stacks.

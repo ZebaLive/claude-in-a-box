@@ -10,7 +10,7 @@ search and residential proxy are cloud-only and omitted.
 
 The reader returns screenshots as a **presigned S3 URL signed for the host
 `minio.dev.jina.ai`**. That name resolves inside the docker network (compose
-alias) but must also resolve on macOS, or the signature host won't match:
+alias) but must also resolve on the host, or the signature host won't match:
 
 ```sh
 echo "127.0.0.1 minio.dev.jina.ai" | sudo tee -a /etc/hosts
@@ -24,36 +24,50 @@ MinIO console: http://localhost:9001 (minio / minio123).
 |---|---|
 | `docker-compose.yml` | Runs the reader container on `localhost:3333` |
 | `reader_mcp.py` | `uv` single-file MCP server (`read_url`, `capture_screenshot`) |
-| `com.paulius.jina-ai.plist` | LaunchAgent: starts the colima profile + container at login |
+| `com.jina-ai.plist.template` | macOS LaunchAgent: starts the colima profile + container at login |
+| `claude-jina-ai.service.template` | Linux systemd `--user` unit: starts the container at login |
 
 ## Runtime
 
-Runs in a dedicated **colima profile** `jina-ai` (isolated from your other
-profiles), reached via docker context `colima-jina-ai`.
+Run `./setup-jina.sh` (also called by the top-level `install.sh` unless
+`SKIP_JINA=1`). It's OS-aware:
 
+- **macOS**: runs in a dedicated **colima profile** `jina-ai` (isolated from
+  your other profiles), reached via docker context `colima-jina-ai`.
+  ```sh
+  colima start --profile jina-ai
+  docker --context colima-jina-ai compose up -d
+  ```
+- **Linux (Arch, etc.)**: uses the native Docker daemon directly — no colima
+  needed.
+  ```sh
+  docker compose up -d
+  ```
+
+Test either way:
 ```sh
-# Manual start (the LaunchAgent does this for you at login)
-colima start --profile jina-ai
-docker --context colima-jina-ai compose up -d
-
-# Test
 curl http://localhost:3333/https://example.com
 ```
 
 ## Always-on
 
-```sh
-cp com.paulius.jina-ai.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.paulius.jina-ai.plist
-```
+`setup-jina.sh` installs and enables the login service for you:
 
-Starts the `jina-ai` colima profile at login; the container is
-`restart: unless-stopped` so it stays up. Logs: `launchd.{out,err}.log`.
+- **macOS**: a LaunchAgent (`~/Library/LaunchAgents/com.jina-ai.plist`) starts
+  the `jina-ai` colima profile at login. Logs: `launchd.{out,err}.log`.
+  ```sh
+  launchctl unload ~/Library/LaunchAgents/com.jina-ai.plist   # stop permanently
+  ```
+- **Linux**: a systemd `--user` unit (`~/.config/systemd/user/claude-jina-ai.service`)
+  starts the container at login (`loginctl enable-linger` lets it start even
+  without an active session).
+  ```sh
+  systemctl --user status claude-jina-ai.service
+  systemctl --user disable --now claude-jina-ai.service   # stop permanently
+  ```
 
-To stop permanently:
-```sh
-launchctl unload ~/Library/LaunchAgents/com.paulius.jina-ai.plist
-```
+Either way the container itself is `restart: unless-stopped`, so it stays up
+between the service manager runs.
 
 ## MCP tool
 

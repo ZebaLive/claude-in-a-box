@@ -13,13 +13,26 @@ Run these and report what's missing before proceeding:
 
 ```sh
 command -v claude || echo "MISSING: Claude Code CLI — https://docs.claude.com/en/docs/claude-code"
-command -v git colima docker || echo "MISSING one of: git colima docker (brew install colima docker docker-compose)"
-uname -s   # expect Darwin; the jina + otel local stacks are macOS/colima-only
+command -v git docker || echo "MISSING one of: git docker"
+uname -s   # Darwin (macOS) or Linux — both supported; anything else is not
+```
+
+**macOS** also needs colima (the jina/otel stacks run in a colima VM):
+```sh
+brew install colima docker docker-compose
+```
+
+**Linux (Arch and similar)** needs the native Docker daemon + compose plugin,
+and your user in the `docker` group:
+```sh
+sudo pacman -S docker docker-compose      # docker-compose provides the `docker compose` plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"           # then start a new login shell (or `newgrp docker`)
 ```
 
 If Claude Code or git is missing, stop and tell the human to install them first.
-If only colima/docker is missing, you may continue but must set `SKIP_JINA=1
-SKIP_OTEL=1` (the local docker stacks will be skipped).
+If docker (and colima, on macOS) is missing, you may continue but must set
+`SKIP_JINA=1 SKIP_OTEL=1` (the local docker stacks will be skipped).
 
 ## 1. Clone the repo
 
@@ -62,7 +75,8 @@ What `install.sh` does (for your awareness — don't re-do it by hand):
 - Configures the exa MCP server (context7 = `ctx7` CLI + rule, github = `gh` CLI — neither is an MCP)
 - Symlinks `claude/CLAUDE.md` and `claude/rules/` into `~/.claude` (backs up existing to `.bak`)
 - Installs the `jina-reader` skill
-- Brings up local docker stacks: jina Reader (`localhost:3333`), OTel collector
+- Brings up local docker stacks: jina Reader (`localhost:3333`), OTel collector —
+  colima + LaunchAgent on macOS, native Docker + systemd `--user` units on Linux
 
 ## 4. Machine-local settings — the parts NOT in the repo
 
@@ -91,6 +105,13 @@ npx -y ctx7 --version                                 # context7 CLI reachable
 ls -l ~/.claude/CLAUDE.md ~/.claude/skills/jina-reader  # CLAUDE.md is a symlink into the repo
 [ "${SKIP_JINA:-0}" = 1 ] || curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
 [ "${SKIP_OTEL:-0}" = 1 ] || curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
+
+# service manager (informational — confirms the stacks survive reboot/login)
+if [ "$(uname -s)" = Darwin ]; then
+  launchctl list | grep -E 'jina-ai|claude-code-otel'
+else
+  systemctl --user is-active claude-jina-ai.service claude-code-otel.service
+fi
 ```
 
 Report each check's result to the human. If a plugin is missing, re-run its

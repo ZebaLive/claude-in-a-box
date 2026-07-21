@@ -35,9 +35,10 @@ curl -s -o /dev/null -w '%{redirect_url}\n' -H "X-Respond-With: screenshot" http
 ```
 
 Requires `127.0.0.1 minio.dev.jina.ai` in /etc/hosts so the signed host
-resolves (see ~/Development/jina-ai/README.md).
+resolves (see `jina-ai/README.md` in the claude-in-a-box repo).
 
 ## If localhost:3333 is down
 
-Start it: `cd ~/Development/jina-ai && docker --context colima-jina-ai compose up -d`
-(LaunchAgent normally keeps it up at login).
+Start it: `cd ~/.claude-in-a-box/jina-ai && ./setup-jina.sh` (idempotent; picks
+colima+LaunchAgent on macOS or native Docker+systemd `--user` on Linux). It
+normally keeps itself up at login via that same login service.

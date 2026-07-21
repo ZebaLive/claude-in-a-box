@@ -1,11 +1,16 @@
 # monitoring — Claude Code telemetry (OTel)
 
-Local OpenTelemetry collector for Claude Code's own metrics/logs. Runs in the
-shared `jina-ai` colima profile, all endpoints bound to `127.0.0.1`.
+Local OpenTelemetry collector for Claude Code's own metrics/logs, all
+endpoints bound to `127.0.0.1`.
 
 ```sh
-./setup-otel.sh          # start collector + install login LaunchAgent
+./setup-otel.sh          # start collector + install login service
 ```
+
+OS-aware: on macOS it runs in the shared `jina-ai` colima profile and installs
+a LaunchAgent; on Linux it uses the native Docker daemon and installs a
+systemd `--user` unit (`claude-code-otel.service`). See `jina-ai/README.md`
+for the equivalent detail on that stack.
 
 Then enable exporting in `~/.claude/settings.json` `env` (machine-local):
 

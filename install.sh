@@ -13,6 +13,13 @@ CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
+OS="$(uname -s)"
+case "$OS" in
+  Darwin) log "Detected macOS" ;;
+  Linux)  log "Detected Linux$([ -f /etc/arch-release ] && echo " (Arch)")" ;;
+  *) echo "Unsupported OS: $OS (this repo supports macOS and Linux)"; exit 1 ;;
+esac
+
 have claude || { echo "claude CLI not found. Install Claude Code first: https://docs.claude.com/en/docs/claude-code"; exit 1; }
 
 # ── Marketplaces (idempotent: `add` no-ops if already present) ───────────────
