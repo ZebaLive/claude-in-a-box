@@ -1,4 +1,5 @@
 .env
+.agents/
 jina-ai/launchd.*.log
 monitoring/data/
 monitoring/launchd.*.log

@@ -206,7 +206,12 @@ What is verified:
 Do not claim OMC/OMX are first-class Antigravity plugins unless their upstream
 repos publish explicit `agy plugin install ...` instructions.
 
-## 8. Verify and report
+## 8. Global gitignore — nothing Antigravity-specific to add
+
+The shared `.omc/` and `.omx/` entries are already covered by the Claude and Codex
+install guides. No additional entries are needed for the Antigravity stack.
+
+## 9. Verify and report
 
 ```sh
 agy plugin help
@@ -215,7 +220,7 @@ rtk init --show
 npx -y ctx7 --version
 npx claude-mem status
 cat ~/.gemini/config/mcp_servers.json | grep -n 'exa\|exa-mcp-server'
-curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
+curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 ```
 

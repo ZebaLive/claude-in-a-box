@@ -221,7 +221,15 @@ already added.
 nothing further to configure for that unless the human wants to override a
 value (a machine-local `settings.json` entry always wins over the merge).
 
-## 10. Verify — report results, don't just claim success
+## 10. Global gitignore — keep OMC runtime dirs out of repos
+
+```sh
+git config --global core.excludesfile "${HOME}/.gitignore_global"
+grep -qxF '.omc/' ~/.gitignore_global 2>/dev/null \
+  || echo '.omc/' >> ~/.gitignore_global
+```
+
+## 11. Verify — report results, don't just claim success
 
 ```sh
 claude plugin list                                      # expect superpowers, oh-my-claudecode, ponytail, claude-mem
@@ -231,7 +239,7 @@ omc --version && ls ~/.claude/agents ~/.claude/hud       # omc CLI installed + s
 rtk --version && rtk init --show                         # rtk installed + hook registered in settings.json
 grep -c "CLAUDE-IN-A-BOX:START\|OMC:START" ~/.claude/CLAUDE.md   # expect 2: our block + OMC's block coexist
 ls -l ~/.claude/skills/jina-reader
-curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
+curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 
 # service manager (informational — confirms the stacks survive reboot/login)

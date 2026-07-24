@@ -52,7 +52,6 @@ cp -n .env.example .env
 
 Ask the human for (skip any already present in `.env`):
 - `EXA_API_KEY` — from https://exa.ai
-- `OPENAI_API_KEY` — from https://platform.openai.com — required for Codex
 - `CONTEXT7_API_KEY` — from https://context7.com — **optional**
 
 Write answers into `.env`, then load for this session:
@@ -76,11 +75,12 @@ Idempotent — `marketplace add` no-ops if already present:
 codex plugin marketplace add Yeachan-Heo/oh-my-codex
 codex plugin marketplace add obra/superpowers
 codex plugin marketplace add thedotmack/claude-mem
+# Note: marketplace names resolve to: oh-my-codex-local, superpowers-dev, claude-mem-local, ponytail
 codex plugin marketplace add DietrichGebert/ponytail
 
-codex plugin add oh-my-codex@Yeachan-Heo
+codex plugin add oh-my-codex@oh-my-codex-local
 codex plugin add superpowers@superpowers-dev
-codex plugin add claude-mem@thedotmack
+codex plugin add claude-mem@claude-mem-local
 codex plugin add ponytail@ponytail
 ```
 
@@ -120,7 +120,7 @@ it up first:
 
 Then verify it's reachable:
 ```sh
-curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
+curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 ```
 
 See `jina-ai/README.md` for full details.
@@ -244,7 +244,15 @@ During a Codex session, you can query shared memory with:
 $mem-search "what we decided about auth last week"
 ```
 
-## 11. Verify — report results, don't just claim success
+## 11. Global gitignore — keep OMX runtime dirs out of repos
+
+```sh
+git config --global core.excludesfile "${HOME}/.gitignore_global"
+grep -qxF '.omx/' ~/.gitignore_global 2>/dev/null \
+  || echo '.omx/' >> ~/.gitignore_global
+```
+
+## 12. Verify — report results, don't just claim success
 
 ```sh
 codex plugin list                          # expect oh-my-codex, superpowers, claude-mem, ponytail
@@ -256,7 +264,7 @@ grep -c "CODEX-IN-A-BOX:START\|OMX:AGENTS:START" ~/.codex/AGENTS.md   # expect 2
 grep -q '^\[otel\]' ~/.codex/config.toml && echo "otel config OK"      # OTel TOML merged
 grep -q '^sandbox_mode' ~/.codex/config.toml && echo "sandbox config OK"
 ls -l ~/.codex/skills/jina-reader
-curl -fsS http://localhost:3333/https://example.com >/dev/null && echo "jina OK"
+curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 omx exec --skip-git-repo-check -C . "Reply with exactly OMX-EXEC-OK"   # proves Codex auth works
 

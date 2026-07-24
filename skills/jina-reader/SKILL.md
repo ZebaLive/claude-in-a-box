@@ -15,14 +15,14 @@ Env override: `JINA_READER_URL` (default `http://localhost:3333`).
 `format` = `markdown` (default) | `html` | `text`.
 
 ```sh
-curl -s -H "X-Respond-With: markdown" http://localhost:3333/https://example.com
+curl -s -H "X-Respond-With: markdown" http://localhost:3333/https://jina.ai
 ```
 
 Slow SPA? Add a render ceiling (seconds, not a fixed delay — fast pages still
 return at once). Bump to 20-30 for heavy client-rendered sites:
 
 ```sh
-curl -s -H "X-Respond-With: markdown" -H "X-Timeout: 25" http://localhost:3333/https://example.com
+curl -s -H "X-Respond-With: markdown" -H "X-Timeout: 25" http://localhost:3333/https://jina.ai
 ```
 
 ## Screenshot a URL → presigned PNG URL
@@ -31,7 +31,7 @@ Reader answers 302 → a time-limited MinIO URL. Capture the redirect, don't
 follow it. `pageshot` = full scrollable page; `screenshot` = viewport only.
 
 ```sh
-curl -s -o /dev/null -w '%{redirect_url}\n' -H "X-Respond-With: screenshot" http://localhost:3333/https://example.com
+curl -s -o /dev/null -w '%{redirect_url}\n' -H "X-Respond-With: screenshot" http://localhost:3333/https://jina.ai
 ```
 
 Requires `127.0.0.1 minio.dev.jina.ai` in /etc/hosts so the signed host

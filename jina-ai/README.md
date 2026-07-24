@@ -46,7 +46,7 @@ optional). It's OS-aware:
 
 Test either way:
 ```sh
-curl http://localhost:3333/https://example.com
+curl http://localhost:3333/https://jina.ai
 ```
 
 ## Always-on
