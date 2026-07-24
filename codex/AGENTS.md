@@ -5,12 +5,13 @@
 Installed tooling and division of labor (rules self-inject via lifecycle hooks —
 this block only orients, it does not restate them):
 - **OMX** orchestrates: agents, skills, team pipeline.
+- **superpowers** enforces skill discipline (invoke a skill before acting).
 - **ponytail** governs how much to build (lazy-senior discipline; default level `full`).
 - **claude-mem** provides persistent cross-session memory — shared with Claude
   via the same `~/.claude-mem/` database. Past Claude sessions are visible here,
   and vice versa.
 - **jina-reader** skill = local, private web fetch/screenshot (`localhost:3333`).
-- **exa** MCP = web search.
+- **exa** MCP = web search. **context7** = `npx ctx7 setup --codex` for live library docs.
 </stack>
 
 <shared_memory>

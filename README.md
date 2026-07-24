@@ -55,6 +55,23 @@ https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_CODEX.md
 curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_CODEX.md
 ```
 
+### Antigravity stack
+
+#### For humans
+
+Install the Claude stack first (shared services - jina, OTel, claude-mem), then:
+
+```
+Set up this machine with my Antigravity stack by following the guide here:
+https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_ANTIGRAVITY.md
+```
+
+#### For LLM agents
+
+```sh
+curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_ANTIGRAVITY.md
+```
+
 ## What it installs
 
 ### Claude stack
@@ -75,12 +92,15 @@ GitHub is handled by the `gh` CLI (no MCP server).
 ### Codex stack
 
 Shares jina, OTel, and the claude-mem database with the Claude stack.
+All four Claude plugins now have Codex equivalents.
 
 | Component | Source | How |
 |---|---|---|
 | oh-my-codex (OMX) | `Yeachan-Heo/oh-my-codex` | plugin + npm `omx` **CLI** (`omx setup --scope user` syncs hooks/agents/AGENTS.md) |
+| superpowers | `obra/superpowers` (Codex plugin at `superpowers-dev`) | plugin |
 | ponytail | `DietrichGebert/ponytail` | plugin |
 | claude-mem | `thedotmack/claude-mem` | plugin — **shared db** with Claude (`~/.claude-mem/`) |
+| context7 | `ctx7` (`npx ctx7 setup --codex`) | **CLI** — same `ctx7` binary as Claude, Codex-specific setup |
 | exa search | `exa-mcp-server` | MCP (stdio, same server as Claude) |
 | jina-reader | this repo | **skill** + shared local Reader on `localhost:3333` |
 | rtk | [`rtk-ai/rtk`](https://github.com/rtk-ai/rtk) | `rtk init -g --codex` registers Codex hook |
@@ -109,6 +129,7 @@ safe to make public. Rotate the keys that were ever pasted into a local
 ```
 INSTALL.md              # Claude stack entrypoint — step-by-step agent instructions
 INSTALL_CODEX.md        # Codex stack entrypoint — mirrors INSTALL.md for Codex CLI
+INSTALL_ANTIGRAVITY.md  # Antigravity stack entrypoint - source-verified plugin/CLI wiring
 .env.example            # required API keys
 claude/                 # shared Claude config, symlinked into ~/.claude
   CLAUDE.md             # global instructions (OMC orchestration, routing, git)
@@ -120,6 +141,8 @@ codex/                  # shared Codex config, merged into ~/.codex
   link.sh               # helper: upserts CODEX-IN-A-BOX block into ~/.codex/AGENTS.md
   merge-config.sh       # helper: merges OTel + sandbox defaults into ~/.codex/config.toml
   shared-config.toml    # base config (OTel grpc exporters, sandbox_mode)
+antigravity/            # shared Antigravity prompt/config snippets
+  GEMINI.md             # global instructions copied to ~/.gemini/GEMINI.md
 skills/jina-reader/     # the jina-reader skill (SKILL.md)
 jina-ai/                # local Reader stack (docker-compose; colima+LaunchAgent on
                          #   macOS, native Docker+systemd --user on Linux)

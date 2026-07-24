@@ -62,28 +62,33 @@ set -a && . ./.env && set +a
 
 ## 3. Marketplaces + plugins
 
-Codex has its own plugin system parallel to Claude's. Three plugins needed:
-**oh-my-codex** (OMX — the workflow layer), **claude-mem** (shared memory),
-and **ponytail** (lazy-senior build discipline). No Codex equivalent of
-superpowers exists.
+Codex has its own plugin system parallel to Claude's. All four Claude plugins
+have Codex equivalents: **oh-my-codex** (OMX), **superpowers**, **ponytail**,
+and **claude-mem**.
+
+Note: the superpowers Codex plugin lives at `obra/superpowers` (not
+`obra/superpowers-marketplace` as on the Claude side) and its marketplace name
+is `superpowers-dev`.
 
 Idempotent — `marketplace add` no-ops if already present:
 
 ```sh
 codex plugin marketplace add Yeachan-Heo/oh-my-codex
+codex plugin marketplace add obra/superpowers
 codex plugin marketplace add thedotmack/claude-mem
 codex plugin marketplace add DietrichGebert/ponytail
 
 codex plugin add oh-my-codex@Yeachan-Heo
+codex plugin add superpowers@superpowers-dev
 codex plugin add claude-mem@thedotmack
 codex plugin add ponytail@ponytail
 ```
 
-Verify all three are present:
+Verify all four are present:
 ```sh
 codex plugin list
 ```
-Expect: `oh-my-codex`, `claude-mem`, and `ponytail` all listed and enabled.
+Expect: `oh-my-codex`, `superpowers`, `claude-mem`, and `ponytail` all listed and enabled.
 
 ## 4. MCP servers
 
@@ -177,11 +182,12 @@ rtk init -g --codex   # non-interactive; registers the PreToolUse hook for Codex
 are rewritten to compact equivalents before execution — same 60-90% token
 savings as on the Claude side, but scoped to Codex sessions.
 
-## 9. Shared config — merge CODEX-IN-A-BOX block + config.toml defaults
+## 9. Shared config — merge CODEX-IN-A-BOX block + config.toml defaults + context7
 
 ```sh
 ./codex/link.sh         # merges CODEX-IN-A-BOX block into ~/.codex/AGENTS.md
 ./codex/merge-config.sh # merges OTel + sandbox defaults into ~/.codex/config.toml
+npx ctx7 setup --codex  # registers context7 live-docs rule for Codex (idempotent)
 ```
 
 `link.sh` does **not** symlink `AGENTS.md` itself. OMX (`omx setup`) writes
@@ -241,10 +247,11 @@ $mem-search "what we decided about auth last week"
 ## 11. Verify — report results, don't just claim success
 
 ```sh
-codex plugin list                          # expect oh-my-codex, claude-mem, ponytail
+codex plugin list                          # expect oh-my-codex, superpowers, claude-mem, ponytail
 codex mcp list                             # expect exa
 omx --version && omx doctor                # OMX CLI installed + setup synced
 rtk --version && rtk init --show           # rtk installed + Codex hook registered
+npx -y ctx7 --version                      # context7 CLI reachable
 grep -c "CODEX-IN-A-BOX:START\|OMX:AGENTS:START" ~/.codex/AGENTS.md   # expect 2
 grep -q '^\[otel\]' ~/.codex/config.toml && echo "otel config OK"      # OTel TOML merged
 grep -q '^sandbox_mode' ~/.codex/config.toml && echo "sandbox config OK"
