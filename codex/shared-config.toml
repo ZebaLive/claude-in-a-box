@@ -1,0 +1,27 @@
+# BEGIN CODEX-IN-A-BOX MANAGED CONFIG
+# Merged into ~/.codex/config.toml by codex/merge-config.sh (idempotent).
+# Do not hand-edit this block inside config.toml — re-run merge-config.sh instead.
+
+# --- OTel ---
+# Codex uses a native [otel] section (not env vars like Claude).
+# Routes all three signal types to the shared local collector at :4317.
+[otel]
+environment = "dev"
+
+[otel.exporter.otlp-grpc]
+endpoint = "http://localhost:4317"
+
+[otel.trace_exporter.otlp-grpc]
+endpoint = "http://localhost:4317"
+
+[otel.metrics_exporter.otlp-grpc]
+endpoint = "http://localhost:4317"
+
+# --- Sandbox ---
+# "workspace-write" is the default for trusted dirs, but stating it explicitly
+# means it also applies to untrusted or unknown project roots.
+# There is no Codex equivalent of Claude's Read(glob)/Bash(pattern) deny list;
+# Codex security is OS-level sandbox rather than command-string pattern matching.
+sandbox_mode = "workspace-write"
+
+# END CODEX-IN-A-BOX MANAGED CONFIG

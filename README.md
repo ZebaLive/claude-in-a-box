@@ -13,7 +13,9 @@ CLI + skills preferred over MCP; MCP is used only where there's no good CLI/skil
 
 ## Installation
 
-### For humans
+### Claude stack
+
+#### For humans
 
 Paste this prompt to your LLM agent (Claude Code, etc.):
 
@@ -27,7 +29,7 @@ reasoning attached, not a script you must run as a black box — but letting an
 agent drive means the interactive parts (API keys, verification, adapting
 commands to your actual OS) get handled for you.
 
-### For LLM agents
+#### For LLM agents
 
 Fetch the guide and follow it:
 
@@ -35,7 +37,27 @@ Fetch the guide and follow it:
 curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL.md
 ```
 
+### Codex stack
+
+#### For humans
+
+Install the Claude stack first (shared services — jina, OTel, claude-mem — run
+once for both), then:
+
+```
+Set up this machine with my Codex stack by following the guide here:
+https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_CODEX.md
+```
+
+#### For LLM agents
+
+```sh
+curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_CODEX.md
+```
+
 ## What it installs
+
+### Claude stack
 
 | Component | Source | How |
 |---|---|---|
@@ -49,6 +71,19 @@ curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL.
 | rtk | [`rtk-ai/rtk`](https://github.com/rtk-ai/rtk) | **CLI** + PreToolUse hook (rewrites Bash commands) |
 
 GitHub is handled by the `gh` CLI (no MCP server).
+
+### Codex stack
+
+Shares jina, OTel, and the claude-mem database with the Claude stack.
+
+| Component | Source | How |
+|---|---|---|
+| oh-my-codex (OMX) | `Yeachan-Heo/oh-my-codex` | plugin + npm `omx` **CLI** (`omx setup --scope user` syncs hooks/agents/AGENTS.md) |
+| ponytail | `DietrichGebert/ponytail` | plugin |
+| claude-mem | `thedotmack/claude-mem` | plugin — **shared db** with Claude (`~/.claude-mem/`) |
+| exa search | `exa-mcp-server` | MCP (stdio, same server as Claude) |
+| jina-reader | this repo | **skill** + shared local Reader on `localhost:3333` |
+| rtk | [`rtk-ai/rtk`](https://github.com/rtk-ai/rtk) | `rtk init -g --codex` registers Codex hook |
 
 ### Why these transports
 - **Skills/CLI first** (ponytail principle): fewer moving parts, less token overhead than MCP.
@@ -72,13 +107,19 @@ safe to make public. Rotate the keys that were ever pasted into a local
 ## Layout
 
 ```
-INSTALL.md              # the entrypoint — step-by-step agent instructions, no install.sh
+INSTALL.md              # Claude stack entrypoint — step-by-step agent instructions
+INSTALL_CODEX.md        # Codex stack entrypoint — mirrors INSTALL.md for Codex CLI
 .env.example            # required API keys
 claude/                 # shared Claude config, symlinked into ~/.claude
   CLAUDE.md             # global instructions (OMC orchestration, routing, git)
   rules/context7.md     # Context7 docs-lookup rule
-  link.sh               # helper: symlinks the above into ~/.claude (backs up existing)
+  link.sh               # helper: upserts CLAUDE-IN-A-BOX block into ~/.claude/CLAUDE.md
   merge-settings.sh     # helper: merges shared-settings.json into ~/.claude/settings.json
+codex/                  # shared Codex config, merged into ~/.codex
+  AGENTS.md             # global instructions (OMX orchestration, shared memory)
+  link.sh               # helper: upserts CODEX-IN-A-BOX block into ~/.codex/AGENTS.md
+  merge-config.sh       # helper: merges OTel + sandbox defaults into ~/.codex/config.toml
+  shared-config.toml    # base config (OTel grpc exporters, sandbox_mode)
 skills/jina-reader/     # the jina-reader skill (SKILL.md)
 jina-ai/                # local Reader stack (docker-compose; colima+LaunchAgent on
                          #   macOS, native Docker+systemd --user on Linux)
