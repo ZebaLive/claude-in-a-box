@@ -11,13 +11,20 @@
 # in any order.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/.." && pwd)"
 DEST="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
-link() {  # src rel-dest
-  local src="$HERE/$1" dst="$DEST/$2"
+# Backups land outside skills/ on purpose: a leftover jina-reader.bak beside
+# jina-reader is a second SKILL.md claiming the same skill name.
+link() {  # repo-rel-src rel-dest
+  local src="$REPO/$1" dst="$DEST/$2"
   mkdir -p "$(dirname "$dst")"
   [ "$(readlink "$dst" 2>/dev/null)" = "$src" ] && { echo "ok    $2"; return; }
-  [ -e "$dst" ] && [ ! -L "$dst" ] && { mv "$dst" "$dst.bak"; echo "backup $2 -> $2.bak"; }
+  if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+    local bak="$DEST/.backup/$2"
+    mkdir -p "$(dirname "$bak")"; rm -rf "$bak"; mv "$dst" "$bak"
+    echo "backup $2 -> .backup/$2"
+  fi
   ln -sfn "$src" "$dst"
   echo "link  $2"
 }
@@ -47,6 +54,12 @@ merge_claude_md() {
 }
 
 merge_claude_md
-link rules/context7.md  rules/context7.md
+link claude/rules/context7.md  rules/context7.md
+
+# Symlinked, not copied: copies drift silently from the repo.
+for d in "$REPO"/skills/*/; do
+  name="$(basename "$d")"
+  link "skills/$name" "skills/$name"
+done
 
 echo "Done. Machine-specific bits go in $DEST/CLAUDE.local.md (not managed here)."

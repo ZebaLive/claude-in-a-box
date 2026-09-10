@@ -129,8 +129,7 @@ already configured.
 ## 5. jina-reader skill + local Reader stack
 
 ```sh
-mkdir -p ~/.claude/skills
-cp -R skills/jina-reader ~/.claude/skills/jina-reader
+./claude/link.sh          # symlinks skills/* into ~/.claude/skills (and merges CLAUDE.md)
 
 ./jina-ai/setup-jina.sh   # OS-aware: colima+LaunchAgent (macOS) or native Docker+systemd --user (Linux)
 ```
@@ -238,7 +237,7 @@ npx -y ctx7 --version                                    # context7 CLI reachabl
 omc --version && ls ~/.claude/agents ~/.claude/hud       # omc CLI installed + setup synced agents/HUD
 rtk --version && rtk init --show                         # rtk installed + hook registered in settings.json
 grep -c "CLAUDE-IN-A-BOX:START\|OMC:START" ~/.claude/CLAUDE.md   # expect 2: our block + OMC's block coexist
-ls -l ~/.claude/skills/jina-reader
+readlink ~/.claude/skills/jina-reader                     # expect a path into this repo, not a copy
 curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 
