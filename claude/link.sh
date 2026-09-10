@@ -33,7 +33,17 @@ merge_claude_md() {
   local src="$HERE/CLAUDE.md" dst="$DEST/CLAUDE.md"
   local start='<!-- CLAUDE-IN-A-BOX:START -->' end='<!-- CLAUDE-IN-A-BOX:END -->'
   mkdir -p "$DEST"
-  [ -e "$dst" ] && [ -L "$dst" ] && rm "$dst"  # older guide versions symlinked this file
+  # Older guide versions symlinked this file, so drop such a link and own the
+  # file. A link pointing anywhere else belongs to someone else -- profile
+  # setups point CLAUDE.md at a real file also carrying OMC's and rtk's blocks
+  # -- so follow it and edit the target in place, or the rewrite below would
+  # replace the link with a regular file and strand that content.
+  if [ -L "$dst" ]; then
+    case "$(readlink "$dst")" in
+      "$HERE"/*|"$REPO"/*) rm "$dst" ;;
+      *) dst="$(readlink -f "$dst")"; echo "follow CLAUDE.md -> $dst" ;;
+    esac
+  fi
   touch "$dst"
   if grep -qF "$start" "$dst"; then
     awk -v start="$start" -v end="$end" -v srcfile="$src" '
