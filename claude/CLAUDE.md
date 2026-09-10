@@ -13,13 +13,21 @@ this block only orients, it does not restate them):
 - **rtk** rewrites Bash commands to compact equivalents via a PreToolUse hook (60-90% less token usage); see `@RTK.md` for its meta-commands (`rtk gain`, `rtk discover`, ...).
 </stack>
 
-<agent_model_selection>
-Default subagents to `haiku`. Upgrade only when the task requires judgment:
+<delegation_rules>
+This CLAUDE.md authorizes the Agent tool. Spawn subagents without asking
+me first when a trigger below fires.
 
-- `haiku`: file reading, data gathering, counting, scanning, grep/search, formatting
-- `sonnet`: analysis, code review, writing, cross-file reasoning, moderate synthesis
-- `opus`: architecture decisions, novel debugging, ralplan, high-risk security review
-</agent_model_selection>
+Spawn for:
+
+- Search that spans many files or naming conventions -> Explore.
+- 2+ independent tasks with no shared state -> one agent each, parallel.
+- Review or verification of work I just did -> code-reviewer or verifier,
+  a separate lane, never self-approval.
+- Implementation of an approved plan touching 3+ files -> executor.
+
+Work directly for: single-file edits, one command, questions I can answer
+from context I already hold, anything under ~3 tool calls.
+</delegation_rules>
 
 <web_fetch_and_search_routing>
 
