@@ -1,6 +1,3 @@
-<!-- CLAUDE-IN-A-BOX:START -->
-<!-- Managed by claude/link.sh; coexists with OMC's and rtk's own blocks below. -->
-
 <stack>
 Installed tooling and division of labor (rules self-inject via SessionStart hooks —
 this block only orients, it does not restate them):
@@ -71,7 +68,3 @@ A one-second `sleep 1` inside a bounded `until … done` loop is fine; a bare `s
 - Keep required public API documentation, but do not turn docstrings into line-by-line implementation narration.
 - Before finishing an edit, re-read every comment added or touched and delete any that merely paraphrase the code.
 </code_comments>
-
-<!-- Machine-specific bits go in ~/.claude/CLAUDE.local.md; uncomment to load: -->
-<!-- @CLAUDE.local.md -->
-<!-- CLAUDE-IN-A-BOX:END -->

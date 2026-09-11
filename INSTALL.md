@@ -129,7 +129,7 @@ already configured.
 ## 5. jina-reader skill + local Reader stack
 
 ```sh
-./claude/link.sh          # symlinks skills/* into ~/.claude/skills (and merges CLAUDE.md)
+./claude/link.sh          # symlinks shared instructions, rules, and skills into ~/.claude
 
 ./jina-ai/setup-jina.sh   # OS-aware: colima+LaunchAgent (macOS) or native Docker+systemd --user (Linux)
 ```
@@ -200,17 +200,17 @@ own Bash calls won't benefit from either until a future session.
 ## 9. Shared config + settings (helper scripts — run these, don't hand-roll them)
 
 ```sh
-./claude/link.sh            # merges our CLAUDE-IN-A-BOX block into ~/.claude/CLAUDE.md, symlinks rules/
+./claude/link.sh            # links CLAUDE-IN-A-BOX.md and imports it from ~/.claude/CLAUDE.md
 ./claude/merge-settings.sh  # merges claude/shared-settings.json into ~/.claude/settings.json (idempotent, machine values win)
 ```
 
-`link.sh` does **not** symlink `CLAUDE.md` itself. OMC (step 7) and rtk
+`link.sh` symlinks the repo's instructions as `~/.claude/CLAUDE-IN-A-BOX.md`
+and adds an `@CLAUDE-IN-A-BOX.md` import to `~/.claude/CLAUDE.md`. OMC (step 7) and rtk
 (step 8) both write into the same real `~/.claude/CLAUDE.md` — OMC's own
-`<!-- OMC:START -->` block, rtk's `@RTK.md` line. Wholesale-symlinking the
-file would make all three fight over ownership and force a strict run order.
-Instead `link.sh` upserts only the content between its own
-`<!-- CLAUDE-IN-A-BOX:START/END -->` markers, leaving OMC's and rtk's pieces
-untouched — so steps 7, 8, and 9 can run in **any order**, including re-runs.
+`<!-- OMC:START -->` block, rtk's `@RTK.md` line. The root file therefore
+remains independently owned, and steps 7, 8, and 9 can run in **any order**,
+including re-runs. Existing embedded `CLAUDE-IN-A-BOX` blocks are removed
+during migration.
 `merge-settings.sh` only fills in missing `env`/`permissions` keys
 (`setdefault`-style), so it never touches the `hooks` entries OMC and rtk
 already added.
@@ -236,7 +236,9 @@ claude mcp list                                         # expect exa (context7 i
 npx -y ctx7 --version                                    # context7 CLI reachable
 omc --version && ls ~/.claude/agents ~/.claude/hud       # omc CLI installed + setup synced agents/HUD
 rtk --version && rtk init --show                         # rtk installed + hook registered in settings.json
-grep -c "CLAUDE-IN-A-BOX:START\|OMC:START" ~/.claude/CLAUDE.md   # expect 2: our block + OMC's block coexist
+test "$(readlink ~/.claude/CLAUDE-IN-A-BOX.md)" = "$HOME/.claude-in-a-box/claude/CLAUDE.md"
+grep -cxF '@CLAUDE-IN-A-BOX.md' ~/.claude/CLAUDE.md               # expect 1
+grep -c 'OMC:START' ~/.claude/CLAUDE.md                           # expect 1
 readlink ~/.claude/skills/jina-reader                     # expect a path into this repo, not a copy
 curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
