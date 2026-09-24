@@ -134,7 +134,7 @@ INSTALL_ANTIGRAVITY.md  # Antigravity stack entrypoint - source-verified plugin/
 claude/                 # shared Claude config, symlinked into ~/.claude
   CLAUDE.md             # global instructions (OMC orchestration, routing, git)
   rules/context7.md     # Context7 docs-lookup rule
-  link.sh               # helper: upserts CLAUDE-IN-A-BOX block into ~/.claude/CLAUDE.md
+  link.sh               # helper: links CLAUDE-IN-A-BOX.md and imports it from ~/.claude/CLAUDE.md
   merge-settings.sh     # helper: merges shared-settings.json into ~/.claude/settings.json
 codex/                  # shared Codex config, merged into ~/.codex
   AGENTS.md             # global instructions (OMX orchestration, shared memory)

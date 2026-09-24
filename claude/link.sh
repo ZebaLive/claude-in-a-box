@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
-# Merge this repo's CLAUDE-IN-A-BOX block into ~/.claude/CLAUDE.md and symlink
-# the rest of the shared config, dotfiles-style. Idempotent.
+# Link this repo's shared Claude instructions into ~/.claude and import them
+# from CLAUDE.md alongside other tools' configuration. Idempotent.
 #
-# CLAUDE.md itself is NOT symlinked: OMC (`omc setup`) and rtk (`rtk init`)
-# both write their own managed pieces into the same real file (OMC's
-# "OMC:START" block, rtk's `@RTK.md` import). Symlinking the whole file would
-# make each tool fight over ownership and force a strict run order. Instead
-# this script upserts only the block between our own markers, leaving
-# everything else in the file untouched — so OMC, rtk, and this repo can run
-# in any order.
+# CLAUDE.md itself remains a real file because OMC (`omc setup`) and rtk
+# (`rtk init`) write their own managed content there.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
@@ -29,15 +24,10 @@ link() {  # repo-rel-src rel-dest
   echo "link  $2"
 }
 
-merge_claude_md() {
-  local src="$HERE/CLAUDE.md" dst="$DEST/CLAUDE.md"
+ensure_claude_import() {
+  local dst="$DEST/CLAUDE.md" import='@CLAUDE-IN-A-BOX.md'
   local start='<!-- CLAUDE-IN-A-BOX:START -->' end='<!-- CLAUDE-IN-A-BOX:END -->'
   mkdir -p "$DEST"
-  # Older guide versions symlinked this file, so drop such a link and own the
-  # file. A link pointing anywhere else belongs to someone else -- profile
-  # setups point CLAUDE.md at a real file also carrying OMC's and rtk's blocks
-  # -- so follow it and edit the target in place, or the rewrite below would
-  # replace the link with a regular file and strand that content.
   if [ -L "$dst" ]; then
     case "$(readlink "$dst")" in
       "$HERE"/*|"$REPO"/*) rm "$dst" ;;
@@ -45,25 +35,44 @@ merge_claude_md() {
     esac
   fi
   touch "$dst"
-  if grep -qF "$start" "$dst"; then
-    awk -v start="$start" -v end="$end" -v srcfile="$src" '
-      $0 == start {
-        while ((getline line < srcfile) > 0) print line   # srcfile already has its own start/end markers
-        skipping=1; next
-      }
-      $0 == end { skipping=0; next }
-      !skipping
-    ' "$dst" > "$dst.tmp"
-    mv "$dst.tmp" "$dst"
-    echo "merge CLAUDE.md (updated our block)"
-  else
-    [ -s "$dst" ] && echo "" >> "$dst"
-    cat "$src" >> "$dst"
-    echo "merge CLAUDE.md (appended our block)"
+  if awk -v start="$start" -v import="$import" -v end="$end" '
+    $0 == start { starts++ }
+    $0 == import { imports++ }
+    $0 == end { ends++ }
+    previous2 == start && previous1 == import && $0 == end { blocks++ }
+    { previous2=previous1; previous1=$0 }
+    END { exit !(starts == 1 && imports == 1 && ends == 1 && blocks == 1) }
+  ' "$dst"; then
+    echo "ok    CLAUDE.md import"
+    return
   fi
+  awk -v start="$start" -v import="$import" -v end="$end" '
+      function emit() {
+        if (!emitted) {
+          print start
+          print import
+          print end
+          emitted=1
+        }
+      }
+      $0 == start { emit(); skipping=1; next }
+      skipping && $0 == end { skipping=0; next }
+      skipping { next }
+      $0 == import { emit(); next }
+      { print; last=$0 }
+      END {
+        if (!emitted) {
+          if (NR > 0 && last != "") print ""
+          emit()
+        }
+      }
+  ' "$dst" > "$dst.tmp"
+  mv "$dst.tmp" "$dst"
+  echo "add   CLAUDE.md import"
 }
 
-merge_claude_md
+link claude/CLAUDE.md           CLAUDE-IN-A-BOX.md
+ensure_claude_import
 link claude/rules/context7.md  rules/context7.md
 
 # Symlinked, not copied: copies drift silently from the repo.
