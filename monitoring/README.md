@@ -7,8 +7,8 @@ endpoints bound to `127.0.0.1`.
 ./setup-otel.sh          # start collector + install login service
 ```
 
-OS-aware: on macOS it runs in the shared `jina-ai` colima profile and installs
-a LaunchAgent; on Linux it uses the native Docker daemon and installs a
+OS-aware: on macOS it runs in the shared `jina-ai` colima profile
+(`docker --context colima-jina-ai`) and installs a LaunchAgent; on Linux it uses the native Docker daemon and installs a
 systemd `--user` unit (`claude-code-otel.service`). See `jina-ai/README.md`
 for the equivalent detail on that stack.
 
