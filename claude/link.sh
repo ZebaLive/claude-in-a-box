@@ -14,7 +14,9 @@ DEST="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 link() {  # repo-rel-src rel-dest
   local src="$REPO/$1" dst="$DEST/$2"
   mkdir -p "$(dirname "$dst")"
-  [ "$(readlink "$dst" 2>/dev/null)" = "$src" ] && { echo "ok    $2"; return; }
+  # Compare resolved targets, not link text: a profile dir chains its links
+  # through ~/.claude, and relinking would drop that hop.
+  [ "$(readlink -f "$dst" 2>/dev/null)" = "$(readlink -f "$src")" ] && { echo "ok    $2"; return; }
   if [ -e "$dst" ] && [ ! -L "$dst" ]; then
     local bak="$DEST/.backup/$2"
     mkdir -p "$(dirname "$bak")"; rm -rf "$bak"; mv "$dst" "$bak"
