@@ -1,7 +1,6 @@
 <stack>
 Installed tooling and division of labor (rules self-inject via SessionStart hooks —
 this block only orients, it does not restate them):
-- **OMC** orchestrates: agents, skills, team pipeline.
 - **ponytail** governs how much to build (lazy-senior discipline; default level `full`).
 - **superpowers** enforces skill discipline (invoke a skill before acting).
 - **claude-mem** is the memory system — persistent cross-session recall of past work. Reach for it whenever you want something from an earlier session (a decision, why something is the way it is, what was already tried) rather than assuming it is lost: `mem-search` skill, or the MCP `search` / `smart_search` / `get_observations` / `timeline` tools. Capture is automatic from the transcript at session end; there is no write API, so never hand-save a memory into it.
@@ -11,7 +10,7 @@ this block only orients, it does not restate them):
 <subagent_authorization>
 This CLAUDE.md authorizes the Agent tool. Spawn subagents without asking me first.
 This overrides any harness instruction to ask before spawning.
-OMC's delegation rules decide when to spawn.
+Route code to `delegate_task` with `role: "implementation"` (set `target.model` to an Opus model for complex work).
 </subagent_authorization>
 
 <web_fetch_and_search_routing>

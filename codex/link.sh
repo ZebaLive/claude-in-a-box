@@ -2,12 +2,9 @@
 # Merge this repo's CODEX-IN-A-BOX block into ~/.codex/AGENTS.md, dotfiles-style.
 # Idempotent — safe to re-run.
 #
-# AGENTS.md itself is NOT symlinked: OMX (`omx setup --scope user`) writes its
-# own managed "OMX:AGENTS:START" block into the same real file. Wholesale-
-# symlinking would make both tools fight over ownership. Instead this script
-# upserts only the content between our own <!-- CODEX-IN-A-BOX:START/END -->
-# markers, leaving OMX's pieces untouched — so omx setup and this script can
-# run in any order.
+# AGENTS.md itself is NOT symlinked: this script upserts only the content
+# between our own <!-- CODEX-IN-A-BOX:START/END --> markers, leaving anything
+# else in the real file untouched.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="${CODEX_HOME:-$HOME/.codex}"

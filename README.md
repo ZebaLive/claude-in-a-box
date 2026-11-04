@@ -8,7 +8,6 @@ tool the way its own maintainers document (brew/curl/cargo, `claude plugin`,
 out to a few small helper scripts only for the fiddly file operations
 (symlink+backup, JSON settings merge, docker compose wiring).
 
-**Bar is set to [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode).**
 CLI + skills preferred over MCP; MCP is used only where there's no good CLI/skill path.
 
 ## Installation
@@ -79,7 +78,6 @@ curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_
 | Component | Source | How |
 |---|---|---|
 | superpowers | `obra/superpowers-marketplace` | plugin |
-| oh-my-claudecode | `Yeachan-Heo/oh-my-claudecode` (`@omc`) | plugin (in-session skills) + npm `omc` **CLI** (`omc setup` syncs hooks/agents/HUD) |
 | ponytail | `DietrichGebert/ponytail` | plugin — defaults to level `full` each session |
 | claude-mem | `thedotmack/claude-mem` | plugin |
 | context7 | `ctx7` (`npx ctx7`) | **CLI** + docs-lookup rule |
@@ -92,11 +90,10 @@ GitHub is handled by the `gh` CLI (no MCP server).
 ### Codex stack
 
 Shares jina, OTel, and the claude-mem database with the Claude stack.
-All four Claude plugins now have Codex equivalents.
+All three Claude plugins have Codex equivalents.
 
 | Component | Source | How |
 |---|---|---|
-| oh-my-codex (OMX) | `Yeachan-Heo/oh-my-codex` | plugin + npm `omx` **CLI** (`omx setup --scope user` syncs hooks/agents/AGENTS.md) |
 | superpowers | `obra/superpowers` (Codex plugin at `superpowers-dev`) | plugin |
 | ponytail | `DietrichGebert/ponytail` | plugin |
 | claude-mem | `thedotmack/claude-mem` | plugin — **shared db** with Claude (`~/.claude-mem/`) |
@@ -132,12 +129,12 @@ INSTALL_CODEX.md        # Codex stack entrypoint — mirrors INSTALL.md for Code
 INSTALL_ANTIGRAVITY.md  # Antigravity stack entrypoint - source-verified plugin/CLI wiring
 .env.example            # required API keys
 claude/                 # shared Claude config, symlinked into ~/.claude
-  CLAUDE.md             # global instructions (OMC orchestration, routing, git)
+  CLAUDE.md             # global instructions (stack, routing, git)
   rules/context7.md     # Context7 docs-lookup rule
   link.sh               # helper: links CLAUDE-IN-A-BOX.md and imports it from ~/.claude/CLAUDE.md
   merge-settings.sh     # helper: merges shared-settings.json into ~/.claude/settings.json
 codex/                  # shared Codex config, merged into ~/.codex
-  AGENTS.md             # global instructions (OMX orchestration, shared memory)
+  AGENTS.md             # global instructions (stack, shared memory)
   link.sh               # helper: upserts CODEX-IN-A-BOX block into ~/.codex/AGENTS.md
   merge-config.sh       # helper: merges OTel + sandbox defaults into ~/.codex/config.toml
   shared-config.toml    # base config (OTel grpc exporters, sandbox_mode)
@@ -171,12 +168,6 @@ Machine-specific instructions (telemetry endpoints, SSH hosts, cloud profiles)
 belong in `~/.claude/CLAUDE.local.md` — not managed here. `CLAUDE.md` has a
 commented `@CLAUDE.local.md` import; uncomment it to load them.
 
-**Ordering gotcha, handled in `INSTALL.md`:** both `omc setup` and `rtk init`
-want to write `~/.claude/CLAUDE.md` themselves (OMC refuses outright if it's
-already our symlink; rtk isn't as careful and will write straight through the
-symlink into the repo's tracked file). `INSTALL.md` runs `omc setup` and
-`rtk init` *before* `link.sh`, so they land on a real file, then `link.sh`
-backs that generated file up and puts our symlink back on top. Our `CLAUDE.md`
-carries a permanent `@RTK.md` import so the rtk-generated meta-command
-reference (`rtk gain`, `rtk discover`, ...) still loads even though the line
-rtk itself appends gets overwritten.
+`~/.claude/CLAUDE.md` stays a real file: `link.sh` only adds an
+`@CLAUDE-IN-A-BOX.md` import and `rtk init` appends its own `@RTK.md` line, so
+neither overwrites the other and they can run in any order.

@@ -2,7 +2,7 @@
 
 You are an AI coding agent setting up this machine with the owner's preferred
 Codex stack. This guide mirrors `INSTALL.md` (the Claude stack) but provisions
-**Codex CLI + oh-my-codex** instead of Claude Code + oh-my-claudecode. The two
+**Codex CLI** instead of Claude Code. The two
 stacks share infrastructure (jina, OTel, claude-mem database) so many steps
 below just verify an already-running service rather than install from scratch.
 
@@ -24,7 +24,7 @@ codex --version
 ```
 
 If Codex CLI or git is missing, stop and tell the human to install them first.
-Node 20+ is required for OMX (oh-my-codex).
+Node 20+ is required for `npx` tools (ctx7, exa-mcp-server).
 
 **Linux** — verify Codex is on `PATH` from its actual install location:
 ```sh
@@ -61,9 +61,8 @@ set -a && . ./.env && set +a
 
 ## 3. Marketplaces + plugins
 
-Codex has its own plugin system parallel to Claude's. All four Claude plugins
-have Codex equivalents: **oh-my-codex** (OMX), **superpowers**, **ponytail**,
-and **claude-mem**.
+Codex has its own plugin system parallel to Claude's. All three Claude plugins
+have Codex equivalents: **superpowers**, **ponytail**, and **claude-mem**.
 
 Note: the superpowers Codex plugin lives at `obra/superpowers` (not
 `obra/superpowers-marketplace` as on the Claude side) and its marketplace name
@@ -72,23 +71,21 @@ is `superpowers-dev`.
 Idempotent — `marketplace add` no-ops if already present:
 
 ```sh
-codex plugin marketplace add Yeachan-Heo/oh-my-codex
 codex plugin marketplace add obra/superpowers
 codex plugin marketplace add thedotmack/claude-mem
-# Note: marketplace names resolve to: oh-my-codex-local, superpowers-dev, claude-mem-local, ponytail
+# Note: marketplace names resolve to: superpowers-dev, claude-mem-local, ponytail
 codex plugin marketplace add DietrichGebert/ponytail
 
-codex plugin add oh-my-codex@oh-my-codex-local
 codex plugin add superpowers@superpowers-dev
 codex plugin add claude-mem@claude-mem-local
 codex plugin add ponytail@ponytail
 ```
 
-Verify all four are present:
+Verify all three are present:
 ```sh
 codex plugin list
 ```
-Expect: `oh-my-codex`, `superpowers`, `claude-mem`, and `ponytail` all listed and enabled.
+Expect: `superpowers`, `claude-mem`, and `ponytail` all listed and enabled.
 
 ## 4. MCP servers
 
@@ -135,35 +132,13 @@ curl -fsS http://localhost:13133 >/dev/null && echo "otel already running — sk
 ```
 
 Codex telemetry is configured via a native `[otel]` section in `config.toml`
-(not env vars like Claude). Step 9 below runs `merge-config.sh` which adds
+(not env vars like Claude). Step 8 below runs `merge-config.sh` which adds
 this section automatically — nothing to do here besides confirm the collector
 is up.
 
 See `monitoring/README.md` for the full endpoint reference.
 
-## 7. oh-my-codex — install CLI then run setup
-
-The plugin from step 3 provides in-session skills (`$deep-interview`,
-`$ralplan`, `$ultragoal`, etc.) but **does not** install OMX's hooks, native
-agents, or write `~/.codex/AGENTS.md` — that requires `omx setup`:
-
-```sh
-command -v omx >/dev/null || npm install -g oh-my-codex
-
-omx setup --scope user
-```
-
-`omx setup --scope user` writes `~/.codex/AGENTS.md` with its own managed
-`<!-- OMX:AGENTS:START -->` block. That's fine to run in any order relative
-to step 8 below — see step 8 for why nothing here fights over the file.
-
-Verify:
-```sh
-omx --version
-omx doctor
-```
-
-## 8. rtk — install it, then register for Codex
+## 7. rtk — install it, then register for Codex
 
 [rtk-ai/rtk](https://github.com/rtk-ai/rtk) supports Codex via `rtk init -g --codex`.
 If rtk is already installed from the Claude setup, just run the second line:
@@ -182,7 +157,7 @@ rtk init -g --codex   # non-interactive; registers the PreToolUse hook for Codex
 are rewritten to compact equivalents before execution — same 60-90% token
 savings as on the Claude side, but scoped to Codex sessions.
 
-## 9. Shared config — merge CODEX-IN-A-BOX block + config.toml defaults + context7
+## 8. Shared config — merge CODEX-IN-A-BOX block + config.toml defaults + context7
 
 ```sh
 ./codex/link.sh         # merges CODEX-IN-A-BOX block into ~/.codex/AGENTS.md
@@ -190,11 +165,9 @@ savings as on the Claude side, but scoped to Codex sessions.
 npx ctx7 setup --codex  # registers context7 live-docs rule for Codex (idempotent)
 ```
 
-`link.sh` does **not** symlink `AGENTS.md` itself. OMX (`omx setup`) writes
-its own `<!-- OMX:AGENTS:START -->` block into the same real file.
-`link.sh` upserts only the content between its own
-`<!-- CODEX-IN-A-BOX:START/END -->` markers, leaving OMX's pieces untouched —
-so steps 7, 8, and 9 can run in **any order**, including re-runs.
+`link.sh` does **not** symlink `AGENTS.md` itself. It upserts only the content
+between its own `<!-- CODEX-IN-A-BOX:START/END -->` markers, leaving anything
+else in the real file untouched, so it is safe to re-run.
 
 `merge-config.sh` only adds sections that are not already present (setdefault
 semantics — existing values in `config.toml` always win). It appends:
@@ -223,7 +196,7 @@ sandbox_mode = "workspace-write"          # safe default; OS-level, not pattern 
 > protection than string-pattern matching on commands. Network domain
 > allow/deny is available via `[permissions.profile.network]` if needed.
 
-## 10. Shared memories — claude-mem bridges Claude ↔ Codex
+## 9. Shared memories — claude-mem bridges Claude ↔ Codex
 
 claude-mem stores all observations in `~/.claude-mem/claude-mem.db`. Both the
 Claude plugin (installed in `INSTALL.md`) and the Codex plugin (step 3 above)
@@ -244,29 +217,20 @@ During a Codex session, you can query shared memory with:
 $mem-search "what we decided about auth last week"
 ```
 
-## 11. Global gitignore — keep OMX runtime dirs out of repos
+## 10. Verify — report results, don't just claim success
 
 ```sh
-git config --global core.excludesfile "${HOME}/.gitignore_global"
-grep -qxF '.omx/' ~/.gitignore_global 2>/dev/null \
-  || echo '.omx/' >> ~/.gitignore_global
-```
-
-## 12. Verify — report results, don't just claim success
-
-```sh
-codex plugin list                          # expect oh-my-codex, superpowers, claude-mem, ponytail
+codex plugin list                          # expect superpowers, claude-mem, ponytail
 codex mcp list                             # expect exa
-omx --version && omx doctor                # OMX CLI installed + setup synced
 rtk --version && rtk init --show           # rtk installed + Codex hook registered
 npx -y ctx7 --version                      # context7 CLI reachable
-grep -c "CODEX-IN-A-BOX:START\|OMX:AGENTS:START" ~/.codex/AGENTS.md   # expect 2
+grep -c "CODEX-IN-A-BOX:START" ~/.codex/AGENTS.md   # expect 1
 grep -q '^\[otel\]' ~/.codex/config.toml && echo "otel config OK"      # OTel TOML merged
 grep -q '^sandbox_mode' ~/.codex/config.toml && echo "sandbox config OK"
 ls -l ~/.codex/skills/jina-reader
 curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
-omx exec --skip-git-repo-check -C . "Reply with exactly OMX-EXEC-OK"   # proves Codex auth works
+codex exec --skip-git-repo-check "Reply with exactly CODEX-EXEC-OK"   # proves Codex auth works
 
 # service manager (informational — confirms stacks survive reboot)
 if [ "$(uname -s)" = Darwin ]; then
@@ -277,8 +241,7 @@ fi
 ```
 
 Report each check's result. If a plugin is missing, re-run its command from
-step 3. If `omx doctor` reports issues, follow its output — it's designed to
-self-diagnose.
+step 3.
 
 ## One thing to note
 
@@ -291,6 +254,6 @@ The Codex and Claude stacks share three services:
 | claude-mem database | `~/.claude-mem/claude-mem.db` | ✔ same SQLite DB |
 | rtk binary | `$(which rtk)` | ✔ one install, two registrations |
 
-Only the agent runtimes (OMC vs OMX), their config dirs (`~/.claude` vs
+Only the agent runtimes (Claude Code vs Codex), their config dirs (`~/.claude` vs
 `~/.codex`), and their plugin registrations are separate. Everything else is
 intentionally shared.

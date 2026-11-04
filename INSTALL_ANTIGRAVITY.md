@@ -194,24 +194,7 @@ These scripts are already in this repo and are stack-agnostic:
 ./monitoring/setup-otel.sh
 ```
 
-## 7. OMC/OMX exception (explicit)
-
-`oh-my-claudecode` / `oh-my-codex` are not documented upstream as direct
-Antigravity plugins installed via `agy plugin install`.
-
-What is verified:
-- OMC can orchestrate Antigravity workers (`agy`) from Claude-side workflows.
-- Antigravity itself has plugin install/import commands.
-
-Do not claim OMC/OMX are first-class Antigravity plugins unless their upstream
-repos publish explicit `agy plugin install ...` instructions.
-
-## 8. Global gitignore — nothing Antigravity-specific to add
-
-The shared `.omc/` and `.omx/` entries are already covered by the Claude and Codex
-install guides. No additional entries are needed for the Antigravity stack.
-
-## 9. Verify and report
+## 7. Verify and report
 
 ```sh
 agy plugin help

@@ -1,10 +1,9 @@
 <!-- CODEX-IN-A-BOX:START -->
-<!-- Managed by codex/link.sh; coexists with OMX's own blocks below. -->
+<!-- Managed by codex/link.sh. -->
 
 <stack>
 Installed tooling and division of labor (rules self-inject via lifecycle hooks —
 this block only orients, it does not restate them):
-- **OMX** orchestrates: agents, skills, team pipeline.
 - **superpowers** enforces skill discipline (invoke a skill before acting).
 - **ponytail** governs how much to build (lazy-senior discipline; default level `full`).
 - **claude-mem** provides persistent cross-session memory — shared with Claude

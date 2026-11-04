@@ -79,20 +79,18 @@ A blank `EXA_API_KEY` means step 4's exa MCP server won't configure; a blank
 `CONTEXT7_API_KEY` is fine (the `ctx7` CLI just runs at default rate limits).
 Everything else below still installs regardless.
 
-## 3. Marketplaces + plugins (bar is set to OMC)
+## 3. Marketplaces + plugins
 
 Idempotent — `marketplace add` no-ops if already present, `plugin install` is
 safe to re-run:
 
 ```sh
 claude plugin marketplace add obra/superpowers-marketplace
-claude plugin marketplace add Yeachan-Heo/oh-my-claudecode
 claude plugin marketplace add DietrichGebert/ponytail
 claude plugin marketplace add thedotmack/claude-mem
 
 claude plugin install superpowers@superpowers-marketplace
 claude plugin install claude-mem@thedotmack
-claude plugin install oh-my-claudecode@omc
 claude plugin install ponytail@ponytail
 ```
 
@@ -107,15 +105,14 @@ session. Refresh it in-session rather than restarting the whole process:
 
 This loads the newly-installed plugins' agents/skills/hooks into your current
 session immediately. Keep going through the rest of this guide in the same
-session — re-run `/reload-plugins` again after step 8 below, since steps 7
-and 8 also add hooks/settings that your current session won't see until
-refreshed. A full Claude Code restart is no longer required to pick these up;
+session — re-run `/reload-plugins` again after step 7 below, since it also
+adds hooks/settings that your current session won't see until refreshed. A full Claude Code restart is no longer required to pick these up;
 it's only a fallback if something still looks stale by the end.
 
 ## 4. MCP servers — only what has no good CLI/skill path
 
 Scope = user so it applies everywhere. context7 is the `ctx7` CLI (see
-`claude/rules/context7.md`, linked in step 9); github is the `gh` CLI. Neither
+`claude/rules/context7.md`, linked in step 8); github is the `gh` CLI. Neither
 needs an MCP server — only exa (web search) does, since there's no local
 equivalent:
 
@@ -145,28 +142,7 @@ for the presigned-URL host, the colima profile, the login service).
 
 See `monitoring/README.md` for endpoints and where the data lands.
 
-## 7. oh-my-claudecode — sync via its own `/setup` skill
-
-The plugin from step 3 gives you the in-session `/autopilot`, `/team`, etc.
-skills, but it does **not** install OMC's hooks/agents/skills/HUD/CLAUDE.md —
-that only happens via OMC's own setup flow. If you're running this guide as
-an agent inside an active Claude Code session, invoke the in-session skill
-rather than driving the separate terminal CLI by hand — it routes to the
-canonical setup flow (installing the npm CLI if missing) non-interactively:
-
-```text
-/oh-my-claudecode:setup
-```
-
-(A human running this guide from a plain shell instead should fall back to
-`command -v omc >/dev/null || npm i -g oh-my-claude-sisyphus@latest` followed
-by `omc setup --quiet`.)
-
-`omc setup` writes a real `~/.claude/CLAUDE.md` with its own managed
-`<!-- OMC:START -->` block. That's fine to run in any order relative to steps
-8 and 9 below — see step 9 for why nothing here fights over the file.
-
-## 8. rtk — install it the way its own docs say to, then let it configure itself
+## 7. rtk — install it the way its own docs say to, then let it configure itself
 
 [rtk-ai/rtk](https://github.com/rtk-ai/rtk) is a CLI proxy that rewrites Bash
 commands (`git status`, `cargo test`, ...) to compact equivalents via a
@@ -190,14 +166,14 @@ always getting the current version's own idea of correct configuration
 rather than a copy we'd have to keep in sync by hand.
 
 `rtk init` appends a real `@RTK.md` import line to `~/.claude/CLAUDE.md`. Fine
-to run in any order relative to steps 7 and 9 — see step 9.
+to run in any order relative to step 8 — see step 8.
 
 If running as an agent inside an active session, `/reload-plugins` now so
-this session picks up the changes from steps 7 and 8 (CLAUDE.md, HUD,
-settings.json, the rtk PreToolUse hook) — otherwise the rest of this guide's
+this session picks up the changes from step 7 (CLAUDE.md, settings.json, the
+rtk PreToolUse hook) — otherwise the rest of this guide's
 own Bash calls won't benefit from either until a future session.
 
-## 9. Shared config + settings (helper scripts — run these, don't hand-roll them)
+## 8. Shared config + settings (helper scripts — run these, don't hand-roll them)
 
 ```sh
 ./claude/link.sh            # links CLAUDE-IN-A-BOX.md and imports it from ~/.claude/CLAUDE.md
@@ -205,40 +181,29 @@ own Bash calls won't benefit from either until a future session.
 ```
 
 `link.sh` symlinks the repo's instructions as `~/.claude/CLAUDE-IN-A-BOX.md`
-and adds an `@CLAUDE-IN-A-BOX.md` import to `~/.claude/CLAUDE.md`. OMC (step 7) and rtk
-(step 8) both write into the same real `~/.claude/CLAUDE.md` — OMC's own
-`<!-- OMC:START -->` block, rtk's `@RTK.md` line. The root file therefore
-remains independently owned, and steps 7, 8, and 9 can run in **any order**,
-including re-runs. Existing embedded `CLAUDE-IN-A-BOX` blocks are removed
+and adds an `@CLAUDE-IN-A-BOX.md` import to `~/.claude/CLAUDE.md`. rtk (step 7)
+writes its own `@RTK.md` line into the same real file, so the root file remains
+independently owned and steps 7 and 8 can run in **any order**, including
+re-runs. Existing embedded `CLAUDE-IN-A-BOX` blocks are removed
 during migration.
 `merge-settings.sh` only fills in missing `env`/`permissions` keys
-(`setdefault`-style), so it never touches the `hooks` entries OMC and rtk
-already added.
+(`setdefault`-style), so it never touches the `hooks` entries rtk already
+added.
 
 `merge-settings.sh` is what turns on telemetry exporting by default
 (`CLAUDE_CODE_ENABLE_TELEMETRY`, `OTEL_*` — see `monitoring/README.md`); there's
 nothing further to configure for that unless the human wants to override a
 value (a machine-local `settings.json` entry always wins over the merge).
 
-## 10. Global gitignore — keep OMC runtime dirs out of repos
+## 9. Verify — report results, don't just claim success
 
 ```sh
-git config --global core.excludesfile "${HOME}/.gitignore_global"
-grep -qxF '.omc/' ~/.gitignore_global 2>/dev/null \
-  || echo '.omc/' >> ~/.gitignore_global
-```
-
-## 11. Verify — report results, don't just claim success
-
-```sh
-claude plugin list                                      # expect superpowers, oh-my-claudecode, ponytail, claude-mem
+claude plugin list                                      # expect superpowers, ponytail, claude-mem
 claude mcp list                                         # expect exa (context7 is the ctx7 CLI, not MCP)
 npx -y ctx7 --version                                    # context7 CLI reachable
-omc --version && ls ~/.claude/agents ~/.claude/hud       # omc CLI installed + setup synced agents/HUD
 rtk --version && rtk init --show                         # rtk installed + hook registered in settings.json
 test "$(readlink ~/.claude/CLAUDE-IN-A-BOX.md)" = "$HOME/.claude-in-a-box/claude/CLAUDE.md"
 grep -cxF '@CLAUDE-IN-A-BOX.md' ~/.claude/CLAUDE.md               # expect 1
-grep -c 'OMC:START' ~/.claude/CLAUDE.md                           # expect 1
 readlink ~/.claude/skills/jina-reader                     # expect a path into this repo, not a copy
 curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
@@ -256,10 +221,10 @@ missing, re-run its command from step 3/4 rather than debugging blindly.
 
 ## One thing to note
 
-If you followed the `/reload-plugins` calls in steps 3 and 8, your current
-session already has the new plugins, OMC hooks/agents/HUD, the rtk hook, and
+If you followed the `/reload-plugins` calls in steps 3 and 7, your current
+session already has the new plugins, the rtk hook, and
 the merged CLAUDE.md loaded — no restart needed. If you skipped those (e.g. a
 human ran this guide from a plain shell rather than an agent inside Claude
 Code), **restart Claude Code** once at the end instead to pick up the same
-changes. (`omc setup` and `rtk init` already ran as part of steps 7-8 above —
+changes. (`rtk init` already ran as part of step 7 above —
 there's no separate finalize step left to do by hand either way.)

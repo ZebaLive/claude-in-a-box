@@ -2,8 +2,8 @@
 # Link this repo's shared Claude instructions into ~/.claude and import them
 # from CLAUDE.md alongside other tools' configuration. Idempotent.
 #
-# CLAUDE.md itself remains a real file because OMC (`omc setup`) and rtk
-# (`rtk init`) write their own managed content there.
+# CLAUDE.md itself remains a real file because rtk (`rtk init`) writes its own
+# managed content there.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
