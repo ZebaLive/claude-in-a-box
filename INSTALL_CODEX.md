@@ -217,7 +217,27 @@ During a Codex session, you can query shared memory with:
 $mem-search "what we decided about auth last week"
 ```
 
-## 10. Verify — report results, don't just claim success
+## 10. tstack skills
+
+[t3dotgg/tstack](https://github.com/t3dotgg/tstack) ships the PR workflow skills
+(`full-send`, `full-stop`, `council`, `sol-loop`, `file-pr`, `takeover`,
+`babysit-pr`, `modernize`, `leaving-pr-comments`). Install them the way its
+README says, but with `cp -Rn` so a re-run never clobbers skills the human has
+edited locally:
+
+```sh
+tmp="$(mktemp -d)"
+git clone --depth 1 https://github.com/t3dotgg/tstack "$tmp/tstack"
+mkdir -p ~/.codex/skills
+cp -Rn "$tmp/tstack/skills/"* ~/.codex/skills/
+rm -rf "$tmp"
+```
+
+They need an authenticated `gh` (`gh auth status`) and `python3`. `council` and
+`sol-loop` call other providers' models through T3 Code's `delegate_task`;
+outside T3 Code they need a harness that can run those models.
+
+## 11. Verify — report results, don't just claim success
 
 ```sh
 codex plugin list                          # expect superpowers, claude-mem, ponytail
@@ -228,6 +248,7 @@ grep -c "CODEX-IN-A-BOX:START" ~/.codex/AGENTS.md   # expect 1
 grep -q '^\[otel\]' ~/.codex/config.toml && echo "otel config OK"      # OTel TOML merged
 grep -q '^sandbox_mode' ~/.codex/config.toml && echo "sandbox config OK"
 ls -l ~/.codex/skills/jina-reader
+ls ~/.codex/skills/{full-send,council,babysit-pr}/SKILL.md     # tstack skills present
 curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 codex exec --skip-git-repo-check "Reply with exactly CODEX-EXEC-OK"   # proves Codex auth works

@@ -195,7 +195,27 @@ added.
 nothing further to configure for that unless the human wants to override a
 value (a machine-local `settings.json` entry always wins over the merge).
 
-## 9. Verify — report results, don't just claim success
+## 9. tstack skills
+
+[t3dotgg/tstack](https://github.com/t3dotgg/tstack) ships the PR workflow skills
+(`full-send`, `full-stop`, `council`, `sol-loop`, `file-pr`, `takeover`,
+`babysit-pr`, `modernize`, `leaving-pr-comments`). Install them the way its
+README says, but with `cp -Rn` so a re-run never clobbers skills the human has
+edited locally:
+
+```sh
+tmp="$(mktemp -d)"
+git clone --depth 1 https://github.com/t3dotgg/tstack "$tmp/tstack"
+mkdir -p ~/.claude/skills
+cp -Rn "$tmp/tstack/skills/"* ~/.claude/skills/
+rm -rf "$tmp"
+```
+
+They need an authenticated `gh` (`gh auth status`) and `python3`. `council` and
+`sol-loop` call other providers' models through T3 Code's `delegate_task`;
+outside T3 Code they need a harness that can run those models.
+
+## 10. Verify — report results, don't just claim success
 
 ```sh
 claude plugin list                                      # expect superpowers, ponytail, claude-mem
@@ -205,6 +225,7 @@ rtk --version && rtk init --show                         # rtk installed + hook 
 test "$(readlink ~/.claude/CLAUDE-IN-A-BOX.md)" = "$HOME/.claude-in-a-box/claude/CLAUDE.md"
 grep -cxF '@CLAUDE-IN-A-BOX.md' ~/.claude/CLAUDE.md               # expect 1
 readlink ~/.claude/skills/jina-reader                     # expect a path into this repo, not a copy
+ls ~/.claude/skills/{full-send,council,babysit-pr}/SKILL.md     # tstack skills present
 curl -fsS http://localhost:3333/https://jina.ai >/dev/null && echo "jina OK"
 curl -fsS http://localhost:13133 >/dev/null && echo "otel OK"
 

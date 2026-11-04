@@ -8,6 +8,10 @@ tool the way its own maintainers document (brew/curl/cargo, `claude plugin`,
 out to a few small helper scripts only for the fiddly file operations
 (symlink+backup, JSON settings merge, docker compose wiring).
 
+Built to run under [T3 Code](https://github.com/pingdotgg/t3code) as the control
+surface: the instructions and the tstack skills lean on its orchestration tools
+(`delegate_task`, thread and PR tools) and fall back to native tools without it.
+
 CLI + skills preferred over MCP; MCP is used only where there's no good CLI/skill path.
 
 ## Installation
@@ -83,6 +87,7 @@ curl -s https://raw.githubusercontent.com/ZebaLive/claude-in-a-box/main/INSTALL_
 | context7 | `ctx7` (`npx ctx7`) | **CLI** + docs-lookup rule |
 | exa search | `exa-mcp-server` | MCP (stdio, cloud index) |
 | jina-reader | this repo | **skill** + local Reader on `localhost:3333` |
+| tstack | [`t3dotgg/tstack`](https://github.com/t3dotgg/tstack) | **skills** copied into `~/.claude/skills` |
 | rtk | [`rtk-ai/rtk`](https://github.com/rtk-ai/rtk) | **CLI** + PreToolUse hook (rewrites Bash commands) |
 
 GitHub is handled by the `gh` CLI (no MCP server).
@@ -100,6 +105,7 @@ All three Claude plugins have Codex equivalents.
 | context7 | `ctx7` (`npx ctx7 setup --codex`) | **CLI** — same `ctx7` binary as Claude, Codex-specific setup |
 | exa search | `exa-mcp-server` | MCP (stdio, same server as Claude) |
 | jina-reader | this repo | **skill** + shared local Reader on `localhost:3333` |
+| tstack | [`t3dotgg/tstack`](https://github.com/t3dotgg/tstack) | **skills** copied into `~/.codex/skills` |
 | rtk | [`rtk-ai/rtk`](https://github.com/rtk-ai/rtk) | `rtk init -g --codex` registers Codex hook |
 
 ### Why these transports
